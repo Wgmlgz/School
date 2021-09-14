@@ -100,7 +100,7 @@ void print(Canvas* canvas, Planet* a, Planet* b) {
   canvasPutStr(canvas, 3, 14, str);
   snprintf(str, 32, "  9     y: %lf", b->vel.y);
   canvasPutStr(canvas, 3, 15, str);
-  snprintf(str, 32, "  10    y: %lf", b->m);
+  snprintf(str, 32, "  10 mass: %lf", b->m);
   canvasPutStr(canvas, 3, 16, str);
 
   snprintf(str, 32, "Space - play/pause");
