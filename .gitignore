@@ -1,2 +1,6 @@
+*/.vscode
 /.vscode
 *.exe
+node_modules/
+
+*/tempCodeRunnerFile.cpp

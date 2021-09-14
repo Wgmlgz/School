@@ -1,0 +1,19 @@
+{
+  "name": "graph_plotter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chart.js": "^3.5.1",
+    "chartjs-plugin-zoom": "^1.1.1",
+    "electorn": "^0.0.1-security"
+  },
+  "devDependencies": {
+    "electron": "^14.0.0"
+  }
+}
