@@ -5,7 +5,8 @@
 #include <set>
 #include <string>
 #include <vector>
-#include "../CP-Lib/debug.hpp"
+
+#include "C:\Code\CP-Lib\Code\debug.hpp"
 #include "Graph.hpp"
 
 template<typename T>
@@ -56,10 +57,12 @@ struct GraphsHandler : Graphs<T> {
       for (int j = i + 1; j < Graphs<T>::graphs_.size(); ++j) {
         auto tmp = Graph<T>([&](T x) -> T {
           return Graphs<T>::graphs_[i].eval(x) - Graphs<T>::graphs_[j].eval(x);
-        }).findRoot(lhs, rhs, EPS);
+        })
+        // .findRoot(lhs, rhs, EPS);
+        .findRoots(lhs, rhs, 0.01, EPS);
 
-        ans.push_back({tmp, {i, j}});
-        // for (auto k : tmp) ans.push_back({k, {i, j}});
+        // ans.push_back({tmp, {i, j}});
+        for (auto k : tmp) ans.push_back({k, {i, j}});
       }
     }
 
@@ -75,6 +78,8 @@ struct GraphsHandler : Graphs<T> {
 
     T lbound = intersections[0].first;
     T rbound = intersections[2].first;
+
+    std::cout << rbound << std::endl;
 
     T mx = -1e9;
     for (auto i : Graphs<T>::graphs_) mx = std::max(mx, i.eval(mid.first));
@@ -97,11 +102,12 @@ struct GraphsHandler : Graphs<T> {
         return Graphs<T>::graphs_[excluded].eval(x);
       });
 
-      return Hull({top, bottom}, lbound, rbound);
+      return Hull<T>({top, bottom}, lbound, rbound);
     } else {
       // bottom merged
       Graph<T> bottom([=](double x) -> double {
         if (x < lbound or x > rbound) return 1e18;
+
         return std::max(Graphs<T>::graphs_[mid.second.first].eval(x),
                         Graphs<T>::graphs_[mid.second.second].eval(x));
       });
@@ -110,7 +116,7 @@ struct GraphsHandler : Graphs<T> {
         return Graphs<T>::graphs_[excluded].eval(x);
       });
 
-      return Hull({top, bottom}, lbound, rbound);
+      return Hull<T>({top, bottom}, lbound, rbound);
     }
   }
 };

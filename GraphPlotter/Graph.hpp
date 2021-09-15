@@ -9,19 +9,30 @@
 template<typename T = double>
 struct Graph {
   typedef std::function<T(T)> lfunc;
+private:
   lfunc func;
+public:
   Graph(lfunc _func) : func(_func) {}
 
-  T eval(T x) const { return func(x); }
+  T eval(T x) const {
+    return func(x);
+  }
 
-  std::vector<std::pair<T, T>> evalRange(T lhs, T rhs, T step) {
+  T evalView(T x) const {
+    T t = func(x);
+    if (t > 10) return 1e18;
+    if (t < -5) return 1e18;
+    return t;
+  }
+
+  std::vector<std::pair<T, T>> evalRange(T lhs, T rhs, T step, bool view = false) {
     assert(lhs < rhs);
     assert(step > 0);
 
     std::vector<std::pair<T, T>> res;
 
-    for (auto i = lhs; i < rhs; i += step)
-      res.emplace_back(i, func(i));
+    for (T i = lhs; i < rhs; i += step)
+      res.emplace_back(i, view ? evalView(i) : eval(i));
     
     return res;
   }
@@ -30,7 +41,7 @@ struct Graph {
     assert(lhs < rhs);
     assert(step > 0);
 
-    auto res = evalRange(lhs, rhs, step);
+    auto res = evalRange(lhs, rhs, step, 1);
 
     std::string json, x, y;
 
@@ -45,7 +56,6 @@ struct Graph {
     json += "\"x\": [" + x + "], ";
     json += "\"y\": [" + y + "]";
     json += "}";
-
 
     return json;
   }
@@ -85,7 +95,6 @@ struct Graph {
       sum += eval(i);
     sum *= step;
 
-    // printf("%lf10\n", sum);
     return sum;
   }
 
