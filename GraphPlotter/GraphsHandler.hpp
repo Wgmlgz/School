@@ -58,11 +58,12 @@ struct GraphsHandler : Graphs<T> {
         auto tmp = Graph<T>([&](T x) -> T {
           return Graphs<T>::graphs_[i].eval(x) - Graphs<T>::graphs_[j].eval(x);
         })
+        .findRootBin(lhs, rhs, EPS);
         // .findRoot(lhs, rhs, EPS);
-        .findRoots(lhs, rhs, 0.01, EPS);
+        // .findRoots(lhs, rhs, 0.01, EPS);
 
-        // ans.push_back({tmp, {i, j}});
-        for (auto k : tmp) ans.push_back({k, {i, j}});
+        ans.push_back({tmp, {i, j}});
+        // for (auto k : tmp) ans.push_back({k, {i, j}});
       }
     }
 

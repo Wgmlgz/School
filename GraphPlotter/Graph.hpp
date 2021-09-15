@@ -60,14 +60,22 @@ public:
     return json;
   }
 
-  T findRoot(const T lhs, const T rhs, const T EPS) {
-    auto a = lhs, b = rhs;
+  T findRootTan(const T lhs, const T rhs, const T EPS) {
 
-    while(std::abs(b - a) > EPS)
-        a = b - (b - a) * eval(b) / (eval(b) - eval(a)),
-        b = a - (a - b) * eval(a) / (eval(a) - eval(b));
+    while(std::abs(rhs - lhs) > EPS)
+        lhs = rhs - (rhs - lhs) * eval(rhs) / (eval(rhs) - eval(lhs)),
+        rhs = lhs - (lhs - rhs) * eval(lhs) / (eval(lhs) - eval(rhs));
 
-    return b;
+    return rhs;
+  }
+
+  T findRootBin(T lhs, T rhs, const T EPS) {
+    bool tmp = eval(lhs) < eval(rhs);
+    while (rhs - lhs > EPS) {
+      auto mid = (rhs + lhs) / 2;
+      (eval(mid) < 0 == tmp ? lhs : rhs) = mid;
+    }
+    return lhs;
   }
 
   std::vector<T> findRoots(const T lhs, const T rhs, const T step, const T EPS) {
