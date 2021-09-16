@@ -41,6 +41,7 @@ void simulate(Canvas* canvas, Planet* a, Planet* b) {
 void input(Canvas* canvas, Planet* a, Planet* b) {
   double time = curTime() - last_time;
   double diff = 0;
+  if (GetAsyncKeyState((unsigned short)'C') & WM_APP) canvasFullReset(canvas);
   if (GetAsyncKeyState((unsigned short)'W') & WM_KEYUP) --pos;
   if (GetAsyncKeyState((unsigned short)'S') & WM_KEYUP) ++pos;
   if (GetAsyncKeyState((unsigned short)'A') & WM_APP) diff = -10;
@@ -103,6 +104,8 @@ void print(Canvas* canvas, Planet* a, Planet* b) {
   snprintf(str, 32, "  10 mass: %lf", b->m);
   canvasPutStr(canvas, 3, 16, str);
 
+  snprintf(str, 32, "C - clear tails");
+  canvasPutStr(canvas, 3, canvas->w - 5, str);
   snprintf(str, 32, "Space - play/pause");
   canvasPutStr(canvas, 3, canvas->w - 4, str);
   snprintf(str, 32, "W/S - up/down");

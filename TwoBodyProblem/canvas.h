@@ -37,7 +37,12 @@ Canvas* newCanvas(int w, int h) {
 // just clear canvas
 void canvasReset(Canvas* canvas) {
   memcpy(canvas->canvas, canvas->canvas_stable, canvas->w * canvas->h);
-      // memset(canvas->canvas, CANVAS_DEFAULT_CHAR, canvas->w * canvas->h);
+}
+
+// also clears tails
+void canvasFullReset(Canvas* canvas) {
+  memset(canvas->canvas_stable, CANVAS_DEFAULT_CHAR, canvas->w * canvas->h);
+  memcpy(canvas->canvas, canvas->canvas_stable, canvas->w * canvas->h);
 }
 
 // safe char draw at [x][y] at canvas
