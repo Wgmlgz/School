@@ -1,7 +1,11 @@
-#pragma once
 #include <exception>
 #include <numeric>
 #include <iostream>
+
+namespace std {
+int gcd(int lhs, int rhs) { return rhs ? gcd(rhs, lhs % rhs) : lhs; }
+int lcm(int lhs, int rhs) { return lhs / gcd(lhs, rhs) * rhs; }
+}  // namespace std
 
 class Fraction {
  public:
