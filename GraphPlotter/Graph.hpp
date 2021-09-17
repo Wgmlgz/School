@@ -20,8 +20,8 @@ public:
 
   T evalView(T x) const {
     T t = func(x);
-    if (t > 10) return 1e18;
-    if (t < -5) return 1e18;
+    if (t > 10) return 1e10;
+    if (t < -10) return 1e10;
     return t;
   }
 
