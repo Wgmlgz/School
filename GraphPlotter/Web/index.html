@@ -5,104 +5,33 @@
   <meta http-equiv='X-UA-Compatible' content='IE=edge'>
   <title>aaaaaa</title>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
-  <!-- <link rel='stylesheet' type='text/css' media='screen' href='main.css'> -->
-  
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
-    <canvas id="myChart"></canvas>
-    <script src="node_modules\chart.js\dist\chart.js"></script>
-    <script src="node_modules\chartjs-plugin-zoom\dist\chartjs-plugin-zoom.js"></script>
-    <script type="text/javascript" src="graph.js"></script>
-    <script>
-      const datapoints = graph.graphs.graphs[0].x;
-      const data = {
-        labels: graph.graphs.graphs[0].x,
-        datasets: [
-          {
-            label: 'hull top',
-            data: graph.hull.graphs[0].y,
-            borderColor: 'rgb(255, 102, 153)',
-            tension: 0.4,
-            fill : '+1',
-            backgroundColor: 'rgba(255, 102, 153, 0.2)',
-          },
-          {
-            label: 'hull bottom',
-            data: graph.hull.graphs[1].y,
-            borderColor: 'rgb(255, 102, 153)',
-            tension: 0.4
-          },
-          {
-            label: 'a',
-            data: graph.graphs.graphs[0].y,
-            borderColor: 'rgb(153, 102, 255)',
-            tension: 0.4
-          },
-          {
-            label: 'b',
-            data: graph.graphs.graphs[1].y,
-            borderColor: 'rgb(153, 102, 255)',
-            tension: 0.4
-          },
-          {
-            label: 'c',
-            data: graph.graphs.graphs[2].y,
-            borderColor: 'rgb(153, 102, 255)',
-            tension: 0.4
-          },
-
-        ],
-
-      };
-      var ctx = document.getElementById('myChart').getContext('2d');
-      var chart = new Chart(ctx, {
-        type: 'line',
-        data: data,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'top',
-            },
-            title: {
-              display: true,
-              text: 'kill me pls'
-            },
-            // zoom: {
-            //   zoom: {
-            //     wheel: {
-            //       enabled: true,
-            //     },
-            //     pinch: {
-            //       enabled: true
-            //     },
-
-            //     mode: 'xy',
-            //   }
-            // },
-            
-          },
-          elements: {
-            point: {
-              radius: 0
-            }
-          },
-          scales: {
-            x: {
-              suggestedMin: -10,
-              suggestedMax: 10
-            },
-            y: {
-              suggestedMin: 0,
-              suggestedMax: 5
-            }
-          }
-        },
-      });
-      chart.canvas.parentNode.style.height = '700px';
-      chart.canvas.parentNode.style.width  = '700px';
-    </script>
-    <script src="./renderer.js"></script>
+  <div class="row">
+    <div class="col-md-8">
+      <canvas id="myChart"></canvas>
+    </div>
+    <div class="col-md-4">
+      <br></br>
+      <h1 class="big_title">Your functions goes here:</h1>
+      <br></br>
+      <label class="title" for="fun0">a:  </label>
+      <input class="material-input" type="fun0" id="fun0" name="name"> <br></br>
+  
+      <label class="title" type="fun1">b:  </label>
+      <input class="material-input" type="text" id="fun1" name="name"> <br></br>
+  
+      <label class="title" for="fun2">c: </label>
+      <input class="material-input" type="text" id="fun2" name="name"> <br></br>
+    </div>
+  </div>
+  <script src="node_modules\chart.js\dist\chart.js"></script>
+  <script src="node_modules\chartjs-plugin-zoom\dist\chartjs-plugin-zoom.js"></script>
+  <script type="text/javascript" src="graph.js"></script>
+  <script src="index.js"></script>
+  <script src="./renderer.js"></script>
 </body>
 </html>

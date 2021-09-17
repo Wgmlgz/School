@@ -1,0 +1,176 @@
+* {
+  background-color: #282a36;
+}
+
+.title {
+  text-align: center;
+  display: inline-block;
+  border: 4px;
+  border-style: solid;
+  border-radius: 10px;
+  border-color: rgb(68, 71, 90);
+  padding: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: bold;
+  font-size: 20px;
+  color: rgb(248, 248, 242);
+  background-color: rgb(68, 71, 90);
+}
+
+.big_title {
+  margin-top: -10px;
+  
+  text-align: center;
+  display: inline-block;
+  border: 4px;
+  border-style: solid;
+  border-radius: 10px;
+  border-color: rgb(68, 71, 90);
+  padding: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: bold;
+  font-size: 35px;
+  color: rgb(248, 248, 242);
+  background-color: rgb(68, 71, 90);
+
+}
+.line {
+  background-color: rgb(255, 85, 85);
+  height: 4px;
+  position: absolute;
+  z-index: -10;
+}
+.tree_node {
+  border: 4px;
+  border-style: solid;
+  border-radius: 12px;
+  border-color: rgb(68, 71, 90);
+  padding: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: bold;
+  font-size: 20px;
+  color: rgb(248, 248, 242);
+  background-color: rgb(68, 71, 90);
+  z-index: -9;
+}
+#tree_fill {
+  position: absolute;
+  top: 200px;
+  bottom: 300px;
+  width: 100%;
+  z-index: 666;
+}
+body {
+  background-color: #282a36;
+  overflow: hidden;
+  margin: 20px;
+}
+
+.btn {
+  padding: 10;
+  font-size: 30px;
+  overflow: hidden;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: bold;
+  border-width: 0;
+  outline: none;
+  border-radius: 5px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+
+  background-color: #ff5555;
+  color: #ecf0f1;
+
+  transition: background-color 0.3s;
+}
+.btn:hover {
+  background-color: #ffb86c;
+}
+.btn:active {
+  background-color: #282a36;
+}
+
+.btn > * {
+  position: relative;
+}
+
+.btn span {
+  display: block;
+  padding: 12px 24px;
+}
+
+.pure-material-slider {
+  display: inline-block;
+  width: calc(100vw - 40px);
+  color: rgba(var(--pure-material-onsurface-rgb, 255, 255, 255), 0.87);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.pure-material-slider > input {
+  -webkit-appearance: none;
+  position: relative;
+  top: 24px;
+  display: block;
+  margin: 0 0 -36px;
+  width: 100%;
+  height: 36px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.pure-material-slider > input:last-child {
+  position: static;
+  margin: 0;
+}
+
+.pure-material-slider > span {
+  display: inline-block;
+  margin-bottom: 36px;
+}
+
+.pure-material-slider > input::-webkit-slider-runnable-track {
+  margin: 17px 0;
+  border-radius: 1px;
+  width: 100%;
+  height: 2px;
+  background-color: #ff555588;
+}
+
+.pure-material-slider > input::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  border-radius: 50%;
+  height: 3px;
+  width: 3px;
+  background-color: #ff5555;
+  transform: scale(6, 6);
+  transition: box-shadow 0.2s;
+}
+
+.material-input {
+  padding: 5px;
+  font-size: 25px;
+  overflow: hidden;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: bold;
+  border-width: 0;
+  outline: none;
+  border-radius: 5px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  width: 300px;
+  background-color: rgb(68, 71, 90);
+  color: #ecf0f1;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
