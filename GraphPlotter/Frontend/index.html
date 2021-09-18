@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Kill me pls</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div>
+      <div style="width: 80%; float:left;">
+        <h1 class="big_title">
+          <span style="color: rgb(153, 102, 255); background-color: rgb(68, 71, 90);">Purple</span>-graphs
+          <span style="color: rgb(255, 102, 153); background-color: rgb(68, 71, 90);">Pink</span>-intersection
+        </h1>
+        <canvas id="myChart"></canvas>
+      </div>
+      <div style="float:left;padding-left: 50px;">
+        <div>
+          <h1 class="big_title">Your functions 😨:</h1>
+          <br></br>
+          <input autocomplete="off"class="material-input" type="fun0" id="fun0" name="name"value="add(pow(2.0 x) 1.0)">
+          <br></br>
+          <input autocomplete="off"class="material-input" type="text" id="fun1" name="name"value="pow x 5.0">
+          <br></br>
+          <input autocomplete="off"class="material-input" type="text" id="fun2" name="name"value="div(sub(1.0 x) 3.0)">
+          <br></br> 
+          <br></br> 
+          <br></br>
+          <label class="pure-material-slider">
+          <input
+            type="range"
+            id="lhs"
+            min="-20.0"
+            max="20.0"
+            value="-10.0"
+            step="any"
+            oninput="refresh()"
+            />
+          <span>lhs -20..20</span>
+          </label>
+          <br></br>
+          <label class="pure-material-slider">
+          <input
+            type="range"
+            id="rhs"
+            min="-20.0"
+            max="20.0"
+            value="10.0"
+            step="any"
+            oninput="refresh()"
+            />
+          <span>rhs -20..20</span>
+          </label>
+          <br></br>
+          <label class="pure-material-slider">
+          <input
+            type="range"
+            id="step"
+            min="0.0001"
+            max="1"
+            value="0.1"
+            step="any"
+            oninput="refresh()"
+            />
+          <span>step 0.0001..0.1</span>
+          </label>
+          <br></br>
+          <h1 class="mid_title">Intersection surface:<br>
+            <span style="color: rgb(255, 102, 153); background-color: rgb(68, 71, 90);"id="surface">666</span>
+            <button id="refresh" class="btn" onclick="refreshSurface()">Refresh</button>
+          </h1>
+        </div>
+      </div>
+    </div>
+    <script src="build.js"></script>
+    <script src="node_modules\chart.js\dist\chart.js"></script>
+    <script src="node_modules\chartjs-plugin-zoom\dist\chartjs-plugin-zoom.js"></script>
+    <script type="text/javascript" src="graph.js"></script>
+    <script src="index.js"></script>
+    <script type="text/javascript"src="frontend.js"></script>
+  </body>
+</html>

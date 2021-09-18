@@ -49,23 +49,7 @@ var chart = new Chart(ctx, {
     plugins: {
       legend: {
         display: false,
-        position: "top",
       },
-      // title: {
-      //   display: true,
-      // },
-      // zoom: {
-      //   zoom: {
-      //     wheel: {
-      //       enabled: true,
-      //     },
-      //     pinch: {
-      //       enabled: true
-      //     },
-
-      //     mode: 'xy',
-      //   }
-      // },
     },
     elements: {
       point: {
@@ -73,13 +57,9 @@ var chart = new Chart(ctx, {
       },
     },
     scales: {
-      x: {
-        suggestedMin: -10,
-        suggestedMax: 10,
-      },
       y: {
-        suggestedMin: 0,
-        suggestedMax: 5,
+        min: -10,
+        max: 10,
       },
     },
   },
@@ -112,20 +92,34 @@ function removeData(chart) {
 }
 
 var da = 0;
+
+var last_refresh = new Date();
+var last_refresh = new Date();
+
+function executeAsync(func) {
+  setTimeout(func, 0);
+}
+
 function refresh() {
+  var cur = new Date();
+
+  if (cur.getTime() - last_refresh.getTime() < 16) {
+    return;
+  }
+
+  _EXPORT_setLhs(document.getElementById("lhs").value);
+  _EXPORT_setRhs(document.getElementById("rhs").value);
+  _EXPORT_setStep(document.getElementById("step").value);
+
   var str = "";
   input.forEach((element) => (str += element.value + "|"));
-  // document.getElementById("deb").innerHTML = str;
 
   var buffer = Module._malloc(str.length + 1);
   writeAsciiToMemory(str, buffer);
   _EXPORT_setGraphs(buffer);
 
-  // _EXPORT_setStr(buffer);
-
-  // document.getElementById("deb2").innerHTML = UTF8ToString(_EXPORT_getStr());
-  // UTF8ToString(_EXPORT_getJson());
-  graph = JSON.parse(UTF8ToString(_EXPORT_getJson()));
+  var p = _EXPORT_getJson();
+  graph = JSON.parse(UTF8ToString(p));
   data = {
     labels: graph.graphs.graphs[0].x,
     datasets: [
@@ -163,7 +157,26 @@ function refresh() {
       },
     ],
   };
+
+  _EXPORT_free(p);
   chart.config.data = data;
   chart.update();
+
+  last_refresh = new Date();
+}
+
+var target_surface = 0,
+  cur_surface = 0;
+
+function refreshSurface() {
+  target_surface = _EXPORT_getSurface();
 }
 refresh();
+
+window.onload = function () {
+  function test() {
+    cur_surface += (target_surface - cur_surface) * 0.25;
+    document.getElementById("surface").innerHTML = cur_surface.toPrecision(6);
+  }
+  setInterval(test, 16);
+};

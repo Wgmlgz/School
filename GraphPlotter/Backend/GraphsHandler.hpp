@@ -80,8 +80,6 @@ struct GraphsHandler : Graphs<T> {
     T lbound = intersections[0].first;
     T rbound = intersections[2].first;
 
-    std::cout << rbound << std::endl;
-
     T mx = -1e9;
     for (auto i : Graphs<T>::graphs_) mx = std::max(mx, i.eval(mid.first));
 

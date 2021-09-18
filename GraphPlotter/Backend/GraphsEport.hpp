@@ -10,17 +10,11 @@
 #include "GraphsHandler.hpp"
 #include "Parser.hpp"
 
+double lhs = -10, rhs = 10, step = 0.1;
 GraphsHandler<double> graphs({
-      // {[](double x) -> double {return std::sqrt(x);}},
-      // {[](double x) -> double {return -0.5 * x + 4;}},
-      // {[](double x) -> double {return (2.0 / 3.0) * x - 3;}},
-      {parser::parse("add(pow(2.0 x) 1.0)")},
-      {parser::parse("pow(x, 5.0)")},
-      {parser::parse("div(sub(1.0 x) 3.0)")},
-
-      // {[](double x) -> double { return std::pow<double>(2, x) + 1; }},
-      // {[](double x) -> double { return std::pow<double>(x, 5); }},
-      // {[](double x) -> double { return (1 - x) / 3; }},
+  {parser::parse("add(pow(2.0 x) 1.0)")},
+  {parser::parse("pow(x, 5.0)")},
+  {parser::parse("div(sub(1.0 x) 3.0)")},
 });
 
 const std::vector<std::pair<std::string, std::string>> lexer_tokens = {
@@ -45,20 +39,27 @@ void setGraphs(char* cstr) {
   } catch(...) {
     std::cout << "Error lol" << std::endl;
   }
-  
+  free(cstr);
 }
+
+void setLhs(double lhs_) { lhs = lhs_; }
+void setRhs(double rhs_) { rhs = rhs_; }
+void setStep(double step_) { step = step_; }
+
 char* getJson() {
-  double lhs = -10, rhs = 10;
-  auto intersections = graphs.findIntersections(lhs, rhs, 0.01);
-  auto hull = graphs.hull(lhs, rhs, 0.01);
+  auto hull = graphs.hull(lhs, rhs, 0.0000001);
 
   auto json = "{ \"hull\": " +
-    hull.toJson(lhs, rhs, 0.1) +
+    hull.toJson(lhs, rhs, step) +
     ", \"graphs\": " +
-    graphs.toJson(lhs, rhs, 0.1) + "}";
+    graphs.toJson(lhs, rhs, step) + "}";
 
   char *cstr = new char[json.length() + 1];
   strcpy(cstr, json.c_str());
   return cstr;
+}
+
+double getSurface() {
+  return graphs.hull(lhs, rhs, 0.0000001).surface(1e-5);
 }
 

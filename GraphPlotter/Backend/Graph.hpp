@@ -20,8 +20,10 @@ public:
 
   T evalView(T x) const {
     T t = func(x);
-    if (t > 10) return 1e10;
-    if (t < -10) return 1e10;
+    if (t > 15) return 1e10;
+    if (t < -15) return 1e10;
+    if (t > 10) return 10;
+    if (t < -10) return -10;
     return t;
   }
 
@@ -32,7 +34,7 @@ public:
     std::vector<std::pair<T, T>> res;
 
     for (T i = lhs; i < rhs; i += step)
-      res.emplace_back(i, view ? evalView(i) : eval(i));
+      res.emplace_back(i, eval(i));
     
     return res;
   }
@@ -86,13 +88,10 @@ public:
 
     bool last = 0;
     for (auto i = lhs; i < rhs; i += step) 
-      if (std::abs(eval(i)) < EPS) {
-        if (!last) {
-          res.push_back(i), last = 1;
-        }
-      } else {
+      if (std::abs(eval(i)) < EPS and !last)
+        res.push_back(i), last = 1;
+      else
         last = 0;
-      }
 
     return res;
   }
@@ -108,9 +107,7 @@ public:
 
   T surfaceAuto(const T lhs, const T rhs, const T EPS) {
     assert(lhs < rhs);
-
     size_t n = 8;
-  
     T cur_surface = -1e18, double_surface = -1e18; 
     do {
       cur_surface = double_surface;
