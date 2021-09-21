@@ -171,9 +171,9 @@ var target_surface = 0,
 function refreshSurface() {
   target_surface = _EXPORT_getSurface();
 }
-refresh();
 
 window.onload = function () {
+  // refresh();
   function test() {
     cur_surface += (target_surface - cur_surface) * 0.25;
     document.getElementById("surface").innerHTML = cur_surface.toPrecision(6);

@@ -9,22 +9,27 @@
 template<typename T = double>
 struct Graph {
   typedef std::function<T(T)> lfunc;
-private:
-  lfunc func;
 public:
-  Graph(lfunc _func) : func(_func) {}
+  Graph(lfunc _func) : func_(_func) {}
 
-  T eval(T x) const {
-    return func(x);
+  T eval(T x) {
+    T y = func_(x);
+    mx_ = std::max(mx_, y);
+    mn_ = std::min(mn_, y);
+    return func_(x);
   }
 
-  T evalView(T x) const {
-    T t = func(x);
-    if (t > 15) return 1e10;
-    if (t < -15) return 1e10;
-    if (t > 10) return 10;
-    if (t < -10) return -10;
-    return t;
+  T evalFast(T x) const {
+    return func_(x);
+  }
+
+  T evalView(T x) {
+    T y = func_(x);
+    if (y > 15) return 1e10;
+    if (y < -15) return 1e10;
+    if (y > 10) return 10;
+    if (y < -10) return -10;
+    return y;
   }
 
   std::vector<std::pair<T, T>> evalRange(T lhs, T rhs, T step, bool view = false) {
@@ -118,4 +123,10 @@ public:
 
     return double_surface;
   }
+
+  T mx() { return mx_; }
+  T mn() { return mn_; }
+ private:
+  lfunc func_;
+  T mx_ = -1e18, mn_ = 1e18;
 };

@@ -5,8 +5,8 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <random>
 
-// #include "C:\Code\CP-Lib\Code\debug.hpp"
 #include "Graph.hpp"
 
 template<typename T>
@@ -42,6 +42,38 @@ struct Hull : public Graphs<T> {
 
     return Graphs<T>::graphs_[0].surfaceAuto(lhs_, rhs_, EPS) -
            Graphs<T>::graphs_[1].surfaceAuto(lhs_, rhs_, EPS);
+  }
+
+
+  T surfaceRand(const size_t n) {
+    T hi = Graphs<T>::graphs_[0].mx() + 1, lo = Graphs<T>::graphs_[0].mn() - 1;
+    std::uniform_real_distribution<double> unifx(lhs_, rhs_);
+    std::uniform_real_distribution<double> unify(lo, hi);
+    std::random_device rand_dev;
+    std::mt19937 rand_engine(rand_dev());
+
+    size_t in = 0;
+    for (int i = 0; i < n; ++i) {
+      T x = unifx(rand_engine), y = unify(rand_engine);
+      if (Graphs<T>::graphs_[0].evalFast(x) > y and y > Graphs<T>::graphs_[1].evalFast(x)) ++in;
+    }
+
+    return ((in + 0.0) / n) * (rhs_ - lhs_) * (hi - lo);
+  }
+
+  T surfaceRandAuto(const T EPS) {
+    surface(1e3);
+    size_t n = 1e3;
+    T cur_surface = -1e18, double_surface = -1e18; 
+
+    do {
+      cur_surface = double_surface;
+      double_surface = surfaceRand(n);
+      std::cout << double_surface << " " << n << std::endl;
+      n <<= 1;
+    } while (std::abs(cur_surface - double_surface) > EPS);
+
+    return double_surface;
   }
 };
 
@@ -80,16 +112,13 @@ struct GraphsHandler : Graphs<T> {
     T lbound = intersections[0].first;
     T rbound = intersections[2].first;
 
-    T mx = -1e9;
-    for (auto i : Graphs<T>::graphs_) mx = std::max(mx, i.eval(mid.first));
-
     std::set<size_t> st{0, 1, 2};
     st.erase(mid.second.first);
     st.erase(mid.second.second);
 
     size_t excluded = *std::begin(st);
 
-    if (Graphs<T>::graphs_[mid.second.first].eval(mid.first) == mx) {
+    if (Graphs<T>::graphs_[mid.second.first].eval(mid.first) > Graphs<T>::graphs_[excluded].eval(mid.first)) {
       // top merged
       Graph<T> top([=](double x) -> double {
         if (x < lbound or x > rbound) return 1e18;

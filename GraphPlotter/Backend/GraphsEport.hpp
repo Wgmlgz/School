@@ -20,7 +20,7 @@ GraphsHandler<double> graphs({
 const std::vector<std::pair<std::string, std::string>> lexer_tokens = {
      {"fun", R"(([^|]+))"},
 };
-// bool readyJson() {}
+
 Lexer lexer(lexer_tokens);
 
 void setGraphs(char* cstr) {
@@ -28,7 +28,7 @@ void setGraphs(char* cstr) {
     std::string str = cstr;
     auto tokens = lexer.parse(str);
     if (tokens.size() != 3) throw std::runtime_error("lol");
-    std::cout << 228 << std::endl;
+
     GraphsHandler<double> newGraphs({
       {parser::parse(tokens[0].val)},
       {parser::parse(tokens[1].val)},
@@ -60,6 +60,7 @@ char* getJson() {
 }
 
 double getSurface() {
+  // return graphs.hull(lhs, rhs, 0.0000001).surfaceRandAuto(1e-3);
   return graphs.hull(lhs, rhs, 0.0000001).surface(1e-5);
 }
 
