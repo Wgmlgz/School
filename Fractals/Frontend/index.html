@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Kill me pls</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <canvas id="main_canvas" width="200" height="100"> </canvas>
+    <div>
+      <label class="sld">
+        <input
+          id="sld_x"
+          type="range"
+          min="-100.0"
+          max="100.0"
+          value="0.0"
+          step="any"
+          oninput="_ioSetDouble(1, this.value)"
+        />
+        <span>x -100..100</span>
+      </label>
+      <label class="sld">
+        <input
+          id="sld_y"
+          type="range"
+          min="-100.0"
+          max="100.0"
+          value="0.0"
+          step="any"
+          oninput="_ioSetDouble(2, this.value)"
+        />
+        <span>y -100..100</span>
+      </label>
+    </div>
+    <div>
+      <label class="sld">
+        <input
+          id="sld_zoom"
+          type="range"
+          min="0.1"
+          max="200.0"
+          value="20"
+          step="any"
+          oninput="_ioSetDouble(3, this.value)"
+        />
+        <span>zoom 0.1..200</span>
+      </label>
+      <label class="sld">
+        <input
+          id="sld_iters"
+          type="range"
+          min="0"
+          max="12"
+          value="5"
+          step="1"
+          oninput="_ioSetInt(4, this.value)"
+        />
+        <span>iterations 0..12</span>
+      </label>
+    </div>
+    <script src="build.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>
