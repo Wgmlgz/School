@@ -12,7 +12,7 @@ function randInt() {
   return Math.floor(Math.random() * 256);
 }
 const h = 800,
-  w = 1500;
+  w = 1400;
 function refresh() {
   writeImageDataToCanvas(
     document.getElementById("main_canvas"),
@@ -32,7 +32,7 @@ var zoom = 20;
 function wheel(event) {
   event.preventDefault();
   zoom += zoom * event.deltaY * -0.002;
-  zoom = Math.min(Math.max(0.1, zoom), 100000);
+  zoom = Math.min(Math.max(0.1, zoom), 10000000000);
   document.getElementById("sld_zoom").value = zoom;
   _ioSetDouble(3, zoom);
 }
