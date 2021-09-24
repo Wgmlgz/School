@@ -32,7 +32,7 @@ var zoom = 20;
 function wheel(event) {
   event.preventDefault();
   zoom += zoom * event.deltaY * -0.002;
-  zoom = Math.min(Math.max(0.1, zoom), 200);
+  zoom = Math.min(Math.max(0.1, zoom), 100000);
   document.getElementById("sld_zoom").value = zoom;
   _ioSetDouble(3, zoom);
 }

@@ -46,12 +46,12 @@
           id="sld_zoom"
           type="range"
           min="0.1"
-          max="200.0"
-          value="20"
+          max="100000.0"
+          value="1000"
           step="any"
           oninput="_ioSetDouble(3, this.value)"
         />
-        <span>zoom 0.1..200</span>
+        <span>zoom 0.1..100000</span>
       </label>
       <label class="sld">
         <input
@@ -64,6 +64,20 @@
           oninput="_ioSetInt(4, this.value)"
         />
         <span>iterations 0..12</span>
+      </label>
+    </div>
+    <div>
+      <label class="sld">
+        <input
+          id="sld_fractal"
+          type="range"
+          min="0"
+          max="3"
+          value="0"
+          step="1"
+          oninput="_ioSetInt(5, this.value)"
+        />
+        <span>fractal 1..3</span>
       </label>
     </div>
     <script src="build.js"></script>

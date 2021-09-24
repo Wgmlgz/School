@@ -63,8 +63,21 @@ class Canvas {
     return data_ + (h_ - y - 1) * w_ * 4 + x * 4;
   }
 
+  void setXYRGBA(size_t x, size_t y, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    pixel(x, y)[0] = r;
+    pixel(x, y)[1] = g;
+    pixel(x, y)[2] = b;
+    pixel(x, y)[3] = a;
+  }
+
   uint8_t* data() { return data_; }
 
+  
+  T getX() { return x_; }
+  T getY() { return y_; }
+  size_t getW() { return w_; }
+  size_t getH() { return h_; }
+  T getZoom() { return zoom_; }
   void setX(T val) {x_ = val;}
   void setY(T val) {y_ = val;}
   void setZoom(T val) {zoom_ = val;}

@@ -6,14 +6,14 @@
 
 
 template<typename T>
-class GeometryFractal {
+class GeometryFractal : public RenderObject<T>{
  public:
   GeometryFractal(std::complex<T> base, std::vector<wasm::Line<T>> const_lines,
                   std::vector<wasm::Line<T>> change_lines) :
   base_(base), const_lines_(const_lines), change_lines_(change_lines),
   setup_const_lines_(const_lines), setup_change_lines_(change_lines) {}
   
-  void printToCanvas(wasm::Canvas<T>& canvas) {
+  virtual void renderToCanvas(wasm::Canvas<T>& canvas) override {
     for (auto & i : const_lines_)
       canvas.drawLine(i);
     for (auto & i : change_lines_)
