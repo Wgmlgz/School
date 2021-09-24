@@ -10,7 +10,7 @@
 #define EMSCRIPTEN_KEEPALIVE 
 #endif
 
-wasm::Canvas<double> canvas(800, 1400);
+wasm::Canvas<double> canvas(600, 1800);
 
 std::vector<RenderObject<double>*> fractals{
     // star
@@ -38,7 +38,7 @@ std::vector<RenderObject<double>*> fractals{
                                 }),
     // mand
     new AlgebraicFractal<double>([](auto c) -> double {
-      size_t iteration = 0, max_iters = 500;
+      size_t iteration = 0, max_iters = 100;
       std::complex<double> z;
 
       double x2 = 0, y2 = 0;
@@ -53,7 +53,7 @@ std::vector<RenderObject<double>*> fractals{
         y2 = y * y;
         iteration = iteration + 1;
 
-        if (std::abs(x - xold) < 1e-2 and std::abs(y - yold) < 1e-2) {
+        if (std::abs(x - xold) < 1e-5 and std::abs(y - yold) < 1e-5) {
           iteration = max_iters;
           break;
         }
@@ -65,11 +65,11 @@ std::vector<RenderObject<double>*> fractals{
         }
       }
 
-      return (double)iteration / max_iters;
+      return (double)iteration / (max_iters + 1);
       return 0;
     }),
     new AlgebraicFractal<double>([](auto c) -> double {
-      size_t iteration = 0, max_iters = 500;
+      size_t iteration = 0, max_iters = 100;
       std::complex<double> z;
 
       double x2 = 0, y2 = 0;
@@ -86,11 +86,9 @@ std::vector<RenderObject<double>*> fractals{
         x2 = x * x;
         y2 = y * y;
         
-
-        
         iteration = iteration + 1;
 
-        if (std::abs(x - xold) < 1e-2 and std::abs(y - yold) < 1e-2) {
+        if (std::abs(x - xold) < 1e-5 and std::abs(y - yold) < 1e-5) {
           iteration = max_iters;
           break;
         }
@@ -102,8 +100,7 @@ std::vector<RenderObject<double>*> fractals{
         }
       }
 
-      return (double)iteration / max_iters;
-      return 0;
+      return (double)iteration / (max_iters + 1);
     }),
     new RandFractal<double>()
 };
@@ -116,7 +113,7 @@ int last_selected = 0;
 extern "C" {
   EMSCRIPTEN_KEEPALIVE uint8_t* getTestData() {
     if (auto fractal = dynamic_cast<GeometryFractal<double>*>(fractals[wasm::ioGetInt(5)]))
-      canvas.fill(0, 0, 0, 0);
+      canvas.fill(0, 0, 0, 255);
 
     canvas.setX(wasm::ioGetDouble(1));
     canvas.setY(wasm::ioGetDouble(2));
@@ -125,6 +122,7 @@ extern "C" {
     if (last_iters != wasm::ioGetInt(4) or last_selected != wasm::ioGetInt(5)) {
       last_iters = wasm::ioGetInt(4);
       last_selected = wasm::ioGetInt(5);
+      canvas.fill(0, 0, 0, 255);
 
       if (auto fractal = dynamic_cast<GeometryFractal<double>*>(fractals[ wasm::ioGetInt(5)]))
         fractal->recalc(wasm::ioGetInt(4));

@@ -22,10 +22,6 @@ class RandFractal : public RenderObject<T> {
     g += rng() % 40;
     b += rng() % 40;
 
-    // r = rng();
-    // g = rng();
-    // b = rng();
-
     canvas.setXYRGBA(x, y, r, g, b, 255);
 
     r = ((int)canvas.pixel(x0, y0)[0] + canvas.pixel(x0, y1)[0]) / 2;
@@ -51,8 +47,7 @@ class RandFractal : public RenderObject<T> {
     b = ((int)canvas.pixel(x0, y1)[2] + canvas.pixel(x1, y1)[2]) / 2;
 
     canvas.setXYRGBA(x, y1, r, g, b, 255);
-    // canvas.setXYRGBA(x, y, r, 255, 255, 255);
-    // canvas.setXYRGBA(x, y, 255, 255, 255, 255);
+
     calc(canvas, x0, y0, x, y);
     calc(canvas, x, y0, x1, y);
     calc(canvas, x0, y, x, y1);
