@@ -30,7 +30,7 @@ void planetApplyVel(Planet* a, double time) {
 // Apply gravity between 2 planets
 void planetApplyG(Planet* p1, Planet* p2, double time) {
   double r = vecAbs(vecSub(p1->pos, p2->pos));
-  double F = (G * p1->m * p2->m ) / fmax(r * r, 0.001);
+  double F = (G * p1->m * p2->m ) / fmax(r * r, 0.1);
 
   double a1 = F / p1->m;
   double a2 = F / p2->m;

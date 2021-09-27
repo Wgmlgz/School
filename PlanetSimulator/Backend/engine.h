@@ -16,6 +16,20 @@ double curTime() { return clock() * 1.0 / CLOCKS_PER_SEC; }
 // Reset last time stamp
 void resetTime() { last_time = curTime(); }
 
+// main sim
+void simulate(Planet* planets[], int n) {
+  double time = curTime() - last_time;
+
+  for (int i = 0; i < n; ++i) for (int j = i + 1; j < n; ++j)
+    planetApplyG(planets[i], planets[j], time);
+  for (int i = 0; i < n; ++i)
+    planetApplyVel(planets[i], time);
+    
+  resetTime();
+}
+
+// Old ascii version (((
+
 // Draws planet on canvas
 // void canvasPutPlanet(Canvas* canvas, Planet* a, char* name) {
 //   int x = round(a->pos.x), y = round(a->pos.y / 2.0);
@@ -28,15 +42,7 @@ void resetTime() { last_time = curTime(); }
 //   canvasPutStr(canvas, x, y - 1, name);
 // }
 
-void simulate(Planet* a, Planet* b) {
-  double time = curTime() - last_time;
 
-  planetApplyG(a, b, time);
-  planetApplyVel(a, time);
-  planetApplyVel(b, time);
-
-  resetTime();
-}
 
 // void input(Canvas* canvas, Planet* a, Planet* b) {
 //   double time = curTime() - last_time;
@@ -118,7 +124,6 @@ void simulate(Planet* a, Planet* b) {
 //   printCanvas(canvas);
 // }
 
-// Main simulation
 // void update(Canvas* canvas, Planet* a, Planet* b) {
 //   input(canvas, a, b);
 

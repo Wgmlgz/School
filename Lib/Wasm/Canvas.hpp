@@ -22,7 +22,6 @@ class Canvas {
   Canvas(size_t h, size_t w) : h_(h),  w_(w) {
     data_ = reinterpret_cast<uint8_t*>(malloc(w * h * 4));
     fill(68, 71, 90, 54);
-    // fill(138, 43, 226, 255);
   }
 
   void invert() {
@@ -33,15 +32,27 @@ class Canvas {
     }
   }
 
-  void drawLine(const Line<T>& line) {
-    drawLine(line.a.real(), line.a.imag(), line.b.real(), line.b.imag());
+  void drawLine(const Line<T>& line, uint8_t r, uint8_t g, uint8_t b) {
+    drawLine(line.a.real(), line.a.imag(), line.b.real(), line.b.imag(), r, g, b);
   }
 
-  void drawRect(T x, T y, T size) {
-    drawLine(x - size, y + size, x + size, y + size);
-    drawLine(x - size, y - size, x + size, y - size);
-    drawLine(x + size, y - size, x + size, y + size);
-    drawLine(x - size, y - size, x - size, y + size);
+  void drawRect(T x, T y, T size, uint8_t r, uint8_t g, uint8_t b) {
+    drawLine(x - size, y + size, x + size, y + size, r, g, b);
+    drawLine(x - size, y - size, x + size, y - size, r, g, b);
+    drawLine(x + size, y - size, x + size, y + size, r, g, b);
+    drawLine(x - size, y - size, x - size, y + size, r, g, b);
+  }
+
+  void drawNgon(T x, T y, T size, int n, uint8_t r, uint8_t g, uint8_t b) {
+    std::complex<T> cur{0, size}, last{0, size}, origin{x, y};
+    auto shift = std::polar<T>(1, 3.14159265358979323846 * 2 / n);
+    cur *= shift;
+
+    for (int i = 0; i < n; ++i) {
+      drawLine({last + origin, cur + origin}, r, g, b);
+      cur *= shift;
+      last *= shift;
+    }
   }
 
   void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
@@ -107,7 +118,7 @@ class Canvas {
     addPixel(x, y, r * brightness, g * brightness, b * brightness, 255);
   }
 
-  void drawLine(T x0, T y0, T x1, T y1, T size = 0.5, size_t iterations = 3) {
+  void drawLine(T x0, T y0, T x1, T y1, uint8_t r, uint8_t g, uint8_t b, T size = 0.5, size_t iterations = 3) {
     x0 -= x_;
     x1 -= x_;
     y0 -= y_;
@@ -125,14 +136,14 @@ class Canvas {
 
     for (float i = -size; i < size; i += 2 * size / iterations) {
       for (float j = -size; j < size; j += 2 * size / iterations) {
-        putLine(x0 + i, y0 + j, x1 + i, y1 + j);
-        putLine(x0, y0, x1, y1);
+        putLine(x0 + i, y0 + j, x1 + i, y1 + j, r, g, b);
+        putLine(x0, y0, x1, y1, r, g, b);
       }
     }
   }
 
   // https://rosettacode.org/wiki/Xiaolin_Wu%27s_line_algorithm#C.2B.2B
-  void putLine(T x0, T y0, T x1, T y1) {
+  void putLine(T x0, T y0, T x1, T y1, uint8_t r, uint8_t g, uint8_t b) {
     auto ipart = [](float x) -> int { return int(std::floor(x)); };
     auto round = [](float x) -> float { return std::round(x); };
     auto fpart = [](float x) -> float { return x - std::floor(x); };
@@ -161,11 +172,11 @@ class Canvas {
       xpx11 = int(xend);
       const int ypx11 = ipart(yend);
       if (steep) {
-        setPixel(ypx11, xpx11, rfpart(yend) * xgap);
-        setPixel(ypx11 + 1, xpx11, fpart(yend) * xgap);
+        setPixel(ypx11, xpx11, rfpart(yend) * xgap, r, g, b);
+        setPixel(ypx11 + 1, xpx11, fpart(yend) * xgap, r, g, b);
       } else {
-        setPixel(xpx11, ypx11, rfpart(yend) * xgap);
-        setPixel(xpx11, ypx11 + 1, fpart(yend) * xgap);
+        setPixel(xpx11, ypx11, rfpart(yend) * xgap, r, g, b);
+        setPixel(xpx11, ypx11 + 1, fpart(yend) * xgap, r, g, b);
       }
       intery = yend + gradient;
     }
@@ -178,24 +189,24 @@ class Canvas {
       xpx12 = int(xend);
       const int ypx12 = ipart(yend);
       if (steep) {
-        setPixel(ypx12, xpx12, rfpart(yend) * xgap);
-        setPixel(ypx12 + 1, xpx12, fpart(yend) * xgap);
+        setPixel(ypx12, xpx12, rfpart(yend) * xgap, r, g, b);
+        setPixel(ypx12 + 1, xpx12, fpart(yend) * xgap, r, g, b);
       } else {
         setPixel(xpx12, ypx12, rfpart(yend) * xgap);
-        setPixel(xpx12, ypx12 + 1, fpart(yend) * xgap);
+        setPixel(xpx12, ypx12 + 1, fpart(yend) * xgap, r, g, b);
       }
     }
 
     if (steep) {
       for (int x = xpx11 + 1; x < xpx12; x++) {
-        setPixel(ipart(intery), x, rfpart(intery));
-        setPixel(ipart(intery) + 1, x, fpart(intery));
+        setPixel(ipart(intery), x, rfpart(intery), r, g, b);
+        setPixel(ipart(intery) + 1, x, fpart(intery), r, g, b);
         intery += gradient;
       }
     } else {
       for (int x = xpx11 + 1; x < xpx12; x++) {
-        setPixel(x, ipart(intery), rfpart(intery));
-        setPixel(x, ipart(intery) + 1, fpart(intery));
+        setPixel(x, ipart(intery), rfpart(intery), r, g, b);
+        setPixel(x, ipart(intery) + 1, fpart(intery), r, g, b);
         intery += gradient;
       }
     }

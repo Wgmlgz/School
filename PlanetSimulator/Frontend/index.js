@@ -11,8 +11,8 @@ function writeImageDataToCanvas(canvas, data, width, height) {
 function randInt() {
   return Math.floor(Math.random() * 256);
 }
-const h = 600,
-  w = 1800;
+const h = 650,
+  w = 1000;
 var init = true;
 window.onload = function () {
   function test() {
@@ -29,23 +29,18 @@ window.onload = function () {
       h
     );
 
-    document.getElementById("sld_ax").value = _ioGetDouble(10);
-    document.getElementById("sld_ay").value = _ioGetDouble(11);
-    document.getElementById("sld_bx").value = _ioGetDouble(10);
-    document.getElementById("sld_by").value = _ioGetDouble(11);
+    document.getElementById("sld_x").value = _ioGetDouble(10);
+    document.getElementById("sld_y").value = _ioGetDouble(11);
 
-    document.getElementById("sld_avx").value = _ioGetDouble(12);
-    document.getElementById("sld_avy").value = _ioGetDouble(13);
-    document.getElementById("sld_bvx").value = _ioGetDouble(22);
-    document.getElementById("sld_bvy").value = _ioGetDouble(23);
+    document.getElementById("sld_vx").value = _ioGetDouble(12);
+    document.getElementById("sld_vy").value = _ioGetDouble(13);
 
-    document.getElementById("sld_am").value = _ioGetDouble(15);
-    document.getElementById("sld_bm").value = _ioGetDouble(25);
+    document.getElementById("sld_m").value = _ioGetDouble(15);
   }
   setInterval(test, 4);
 };
 
-var zoom = 20;
+var zoom = 1;
 function wheel(event) {
   event.preventDefault();
   zoom += zoom * event.deltaY * -0.002;
@@ -126,4 +121,3 @@ function dragTree(e) {
     start = false;
   }
 }
-
