@@ -28,12 +28,12 @@ window.onload = function () {
       w,
       h
     );
+a
+    document.getElementById("sld_ax").value = _ioGetDouble(10);
+    document.getElementById("sld_ay").value = _ioGetDouble(11);
 
-    document.getElementById("sld_x").value = _ioGetDouble(10);
-    document.getElementById("sld_y").value = _ioGetDouble(11);
-
-    document.getElementById("sld_vx").value = _ioGetDouble(12);
-    document.getElementById("sld_vy").value = _ioGetDouble(13);
+    document.getElementById("sld_avx").value = _ioGetDouble(12);
+    document.getElementById("sld_avy").value = _ioGetDouble(13);
 
     document.getElementById("sld_m").value = _ioGetDouble(15);
   }

@@ -26,15 +26,10 @@ class IntVector {
   }
 
   IntVector(IntVector&& other) {
-    FreeMem();
-    size_ = other.size_;
-    capacity_ = other.capacity_;
-    head_ = new int[capacity_];
-    std::copy_n(other.head_, capacity_, head_);
+    size_ = std::exchange(other.size_, 0);
+    capacity_ = std::exchange(other.capacity_, 0);
 
-    other.size_ = 0;
-    other.capacity_ = 0;
-    delete[] other.head_;
+    head_ = std::exchange(other.head_, nullptr);
   }
 
   ~IntVector() { delete[] head_; }
