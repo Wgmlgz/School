@@ -30,6 +30,11 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
+typedef int8_t i8;
+typedef int16_t i16;
+typedef int32_t i32;
+typedef int64_t i64;
+
 namespace Dracula {
   auto red = 0xff5555ff;
   auto black = 0x282a36ff;
@@ -206,6 +211,7 @@ struct Canvas {
   }
 
   void playAnim(std::string id, anim animation) {
+    animations_.erase(id);
     animations_.insert({id, animation});
   }
 

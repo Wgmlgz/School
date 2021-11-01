@@ -65,8 +65,7 @@ export default function WCanvas(props) {
   }, 8);
 
 
-  return (
-   <div id={canvas_id + "_div"}>
+  return (<div id={canvas_id + "_div"}>
       <canvas
         id={canvas_id}
         onMouseDown={btnDown}

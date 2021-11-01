@@ -8,11 +8,15 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New';
 }
 
 .canvas {
-  width: 100%;
-  height: 90vh;
+  width: auto;
+  height: calc(100vh - 105px);
 }
+
+.page {
+  margin: 20px;
+}
+

@@ -1,0 +1,1 @@
+For some reason you need to do [this](https://stackoverflow.com/questions/65893787/create-react-app-with-typescript-and-npm-link-enums-causing-module-parse-failed)

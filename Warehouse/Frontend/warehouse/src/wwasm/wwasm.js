@@ -5,6 +5,9 @@ export let ioGetInt = () => null;
 export let ioSetInt = () => null;
 export let ioGetDouble = () => null;
 export let ioSetDouble = () => null;
+export let ioGetStr = () => null;
+export let ioSetStr = () => null;
+
 
 export let getCanvasData = () => null;
 export let getCanvasJSON = () => null;
@@ -18,6 +21,9 @@ WWasmModule().then((Module) => {
 
   ioSetDouble = Module.cwrap("ioSetDouble", "number", ["string", "number"]);
   ioGetDouble = Module.cwrap("ioGetDouble", "number", ["string"]);
+
+  ioSetStr = Module.cwrap("ioSetStr", "string", ["string", "string"]);
+  ioGetStr = Module.cwrap("ioGetStr", "string", ["string"]);
 
   getCanvasData = Module.cwrap("getCanvasData", "number", [
     "string",
@@ -67,7 +73,7 @@ export function drawCanvasJSON(canvas_id, w, h) {
   let canvas = document.getElementById(canvas_id);
   const ctx = canvas.getContext("2d");
 
-  ctx.fillStyle = "#44475aff";
+  ctx.fillStyle = "#282a3600";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   data.data.forEach(i => {
     if (i.type === "line") {

@@ -46,7 +46,7 @@ frm operator|(const frm& lhs, const frm& rhs) {
 }
 
 float lerp(float a, float b, float f) {
-  // f = (3.0 * f * f) - (2.0 * f * f * f);
+  f = (3.0 * f * f) - (2.0 * f * f * f);
   return (a * (1.0 - f)) + (b * f);
 }
 
@@ -74,7 +74,7 @@ struct anim {
 
   int cur_, next_;
   anim(const std::vector<std::pair<float, frm>>& frames,
-      std::function<void(anim&)> on_fin = [](anim& a) {a.replay();})
+      std::function<void(anim&)> on_fin = [](anim& a) {})
       : frames_(frames), on_fin_(on_fin) {
     if (frames.size() < 2) throw std::runtime_error("need 2 or more frames");
     replay();
@@ -107,7 +107,7 @@ struct anim {
     bool call_fin = false;
     if (ts.count() > frames_[next_].first) {
       call_fin = nextFrame();
-      last_ = now;
+      if (!call_fin) last_ = now;
     }
 
     dt = now - last_;
