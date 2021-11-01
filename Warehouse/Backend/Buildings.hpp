@@ -30,6 +30,7 @@ struct Warehouse : public Building {
   }
 
   Warehouse() {
+    core.id2str[id_] = name();
     for (auto& [str, _] : PackageInfo::items) {
       shelfs[str] = {};
     }
@@ -42,9 +43,30 @@ struct Warehouse : public Building {
 };
 
 struct Client : public Building {
+  std::map<std::string, int> probabilities_;
+  std::discrete_distribution<> package_rng_;
+  std::normal_distribution<> amount_rng_;
+  double request_probability_;
+
   virtual std::string name() {
     return "Client";
   }
+
+  Client(int n) {
+    core.id2str[id_] = name();
+
+    // std::initializer_list<double> probabilities(n);
+    // std::initializer_list<double> probabilities(n);
+    std::vector<double> probabilities(n);
+    for (auto& i : probabilities) i = core.rngd();
+    // amount_rng_ = {core.rng() % };
+    // std::initializer_list<double> l = probabilities;
+    package_rng_ = std::discrete_distribution<>(probabilities.begin(), probabilities.end());
+  }
+
+  // void generateRequest() {
+  //   std::string type = 
+  // }
 };
 
 struct Factory : public Building {
@@ -52,9 +74,10 @@ struct Factory : public Building {
   virtual std::string name() {
     return "Factory";
   }
+  Factory() { core.id2str[id_] = name(); }
 };
 
 struct Trash : public Building {
-  
+  Trash() { core.id2str[id_] = name(); }
 };
 

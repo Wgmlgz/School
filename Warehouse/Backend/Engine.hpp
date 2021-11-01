@@ -3,16 +3,23 @@
 #include "Items.hpp"
 #include "Buildings.hpp"
 #include "Messages.hpp"
-#include "Json.hpp"
+#include "WJson.hpp"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 struct Engine {
+  int K, M;
+
+  std::vector<std::string> packages_by_n;
+
   std::map<idt, std::shared_ptr<Package>> packages_list_;
   std::map<idt, Building*> buildings_list_;
 
   Trash trash_;
   Factory factory_;
   Warehouse warehouse_;
-  std::vector<Client> clients = {Client(), Client(), Client(), Client()};
+  std::vector<Client> clients;
 
   std::map<idt, std::list<Contract>> contracts_;
   std::map<idt, std::list<Request>> requests_;
@@ -22,17 +29,37 @@ struct Engine {
   std::function<void(const std::shared_ptr<Package>&)> on_package_created = [](auto a){};
   std::function<void(const std::shared_ptr<Package>&, idt)> on_package_moved = [](auto a, auto b){};
 
-  std::string warehouse_json;
+  json warehouse_json;
 
-  Engine() {
+  json j = {{"pi", 3.141},
+            {"happy", true},
+            {"name", "Niels"},
+            {"nothing", nullptr},
+            {"answer", {{"everything", 42}}},
+            {"list", {1, 0, 2}},
+            {"object", {{"currency", "USD"}, {"value", 42.99}}}};
+
+  Engine(int k, int m)
+      : K(k),
+       M(m) {
     buildings_list_.insert({trash_.id_, &trash_});
     buildings_list_.insert({factory_.id_, &factory_});
     buildings_list_.insert({warehouse_.id_, &warehouse_});
+
+    auto it = PackageInfo::items.begin();
+    for (int i = 0; i < K; ++i) {
+      packages_by_n.push_back(it->first);
+      ++it;
+    }
+    for (int i = 0; i < M; ++i) {
+      clients.emplace_back(K);
+    }
     for (auto& i : clients) {
       buildings_list_.insert({i.id_, &i});
     }
+    wlog(j);
   }
-  
+
   void pushContract(const Contract& contract) {
     wlog("Pushed contract: " +  contract.json());
     on_push_contract(contract);
@@ -46,10 +73,16 @@ struct Engine {
     on_push_request(request);
   }
 
-  void updateClient(Client& self, std::list<Request>& requests) {
+  void updateClient(Client& self) {
     wlog("Client update");
 
-    // TODO request decision
+    /* request generation */
+    if (core.rngd() < self.request_probability_) {
+      PackageInfo::items.size();
+      std::string package_type = packages_by_n[self.package_rng_(core.rng)];
+
+      pushRequest(Request(self.id_, warehouse_.id_, PackageInfo::items[package_type], 3, core.day));
+    }
     if (core.rng() % 5 == 0) pushRequest(Request(self.id_, warehouse_.id_, PackageInfo::items["Milk"], 3, core.day));
     
     /* Apply contacts */
@@ -57,11 +90,12 @@ struct Engine {
 
   void updateWarehouse(Warehouse& self, std::list<Request>& requests) {
     wlog("Warehouse update");
-    std::string json = "{";
+    warehouse_json.clear();
 
-    json += range2arr("in requests", requests, [](const Request& req){return req.json();});
-    json += ",";
-    
+    warehouse_json["in requests"] = requests;
+    // warehouse_json += range2arr("in requests", requests, [](const Request& req){return req.json();});
+    // warehouse_json += ",";
+
     /* Process requsts */
     std::vector<Request> new_requests;
     // std::vector<Contract> new_requests;
@@ -94,9 +128,10 @@ struct Engine {
 
     // TODO threshold stuff
 
-    json += range2arr("out requests", new_requests, [](const Request& req){return req.json();});
-    json += "}";
-    warehouse_json = json;
+    warehouse_json["out requests"] = new_requests;
+    // warehouse_json += range2arr("out requests", new_requests, [](const Request& req){return req.json();});
+    // warehouse_json += "}";
+    // warehouse_json = warehouse_json;
   }
 
   //* DONE
@@ -140,7 +175,7 @@ struct Engine {
   //   }
   // }
   void update() {
-    for(auto& client : clients) updateClient(client, requests_[client.id_]);
+    for(auto& client : clients) updateClient(client);
     updateWarehouse(warehouse_, requests_[warehouse_.id_]);
     updateFactory(factory_, requests_[factory_.id_]);
     updateTrash(trash_, requests_[trash_.id_]);
@@ -154,4 +189,4 @@ struct Engine {
   }
 };
 
-Engine engine;
+Engine engine(6, 4);

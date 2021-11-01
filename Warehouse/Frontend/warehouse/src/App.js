@@ -1,13 +1,12 @@
 import "./App.scss";
 import "./Frogs/frog1.jpg";
 
-import ClientImg from "./Frogs/Client.png";
-import WarehouseImg from "./Frogs/Warehouse.png";
-import FactoryImg from "./Frogs/Factory.png";
-import TrashImg from "./Frogs/Trash.png";
-import RequestImg from "./Frogs/Request.png";
-import PackageImg from "./Frogs/Package.png";
-import ShelfImg from "./Frogs/Shelf.png";
+import CssBaseline from "@material-ui/core/CssBaseline";
+
+import { ThemeProvider, createTheme } from "@material-ui/core/styles";
+
+import React, { useState, setEffect } from "react";
+import "./index.css";
 
 import Button from "@material-ui/core/Button";
 import Box from "@material-ui/core/Box";
@@ -18,25 +17,23 @@ import Typography from "@material-ui/core/Typography";
 import Card from "@material-ui/core/Card";
 
 import TextField from "@material-ui/core/TextField";
-import CssBaseline from "@material-ui/core/CssBaseline";
+
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import FormControl from "@material-ui/core/FormControl";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import Select from "@material-ui/core/Select";
+import Switch from "@material-ui/core/Switch";
 
 import ReactJson from "react-json-view";
-import { ThemeProvider, createTheme } from "@material-ui/core/styles";
 
-import React, { useState, setEffect } from "react";
-import "./index.css";
-// import Stats from './Stats.jsx'
-import Frog from "./Frog.js";
-import WCanvas from "./wwasm/canvas.jsx";
-
-import { ioGetStr, ioSetStr } from "./wwasm/wwasm.js";
-import {
-  CardContent,
-  CardHeader,
-  Container,
-  Grid,
-  Paper,
-} from "@material-ui/core";
+import MainPage from "./MainPage.jsx";
+import { Container } from "@material-ui/core";
 
 const theme = createTheme({
   palette: {
@@ -95,12 +92,17 @@ const style = {
 
 export default class App extends React.Component {
   state = {
-    warehouse_json: {},
+    is_main: false,
+    src: { test: "da", among: "us" }
   };
-  updateStats = () => {
-    let data = ioGetStr("warehouse_json");
-    let json = JSON.parse(data);
-    this.setState({ warehouse_json: json });
+
+  Reset = () => {
+    console.log("da");
+    this.setState({ is_main: false });
+  };
+
+  handleClose = () => {
+    this.setState({ is_main: true });
   };
 
   render() {
@@ -123,7 +125,7 @@ export default class App extends React.Component {
                   variant="contained"
                   size="large"
                   color="secondary"
-                  onClick={this.updateStats}
+                  onClick={this.Reset}
                   style={{ margin: "10px" }}
                 >
                   Restart
@@ -140,57 +142,46 @@ export default class App extends React.Component {
               </Toolbar>
             </AppBar>
 
-            <div className="page">
-              <Grid container spacing={2}>
-                <Grid item xs={3}>
-                  <Paper>
-                    <Container style={{ display: "flex", padding: "10px" }}>
-                      <Typography variant="h4" style={{ margin: "10px" }}>
-                        Warehouse orders and requests
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        size="large"
-                        color="primary"
-                        onClick={this.updateStats}
-                        style={{ margin: "10px" }}
-                      >
-                        Update
-                      </Button>
-                    </Container>
-                    <Container>
-                      <ReactJson
-                        theme={dracula16}
-                        style={style}
-                        quotesOnKeys={false}
-                        enableClipboard={false}
-                        displayObjectSize={false}
-                        displayDataTypes={false}
-                        iconStyle="triangle"
-                        name="data"
-                        src={this.state.warehouse_json}
-                      />
-                      <br />
-                    </Container>
-                  </Paper>
-                </Grid>
-                <Grid item xs={9}>
-                  <Paper>
-                    <div className="canvas">
-                      <WCanvas canvas_id="main_canvas" render="js" />
-                    </div>
-                  </Paper>
-                </Grid>
-              </Grid>
+            <div
+              style={{ visibility: this.state.is_main ? "visible" : "hidden" }}
+            >
+              <MainPage />
             </div>
-            <div className="hidden">
-              <img src={ClientImg} id="client_img" />
-              <img src={WarehouseImg} id="warehouse_img" />
-              <img src={FactoryImg} id="factory_img" />
-              <img src={TrashImg} id="trash_img" />
-              <img src={RequestImg} id="request_img" />
-              <img src={ShelfImg} id="shelf_img" />
-              <img src={PackageImg} id="package_img" />
+            <div
+              style={{ visibility: this.state.is_main ? "hidden" : "visible" }}
+            >
+              <Dialog open={!this.state.is_main} onClose={this.handleClose}>
+                <Container>
+                  <DialogTitle>IMPOSTOR from game anong aus!!!!</DialogTitle>
+                  <Container>
+                    <ReactJson
+                      theme={dracula16}
+                      style={style}
+                      quotesOnKeys={false}
+                      displayDataTypes={false}
+                      displayObjectSize={false}
+                      enableClipboard={false}
+                      iconStyle="triangle"
+                      name="data"
+                      src={this.state.src}
+                      onEdit={(e) => {
+                        console.log(e);
+                        this.setState({ src: e.updated_src });
+                      }}
+                    />
+                  </Container>
+
+                  <Button
+                    variant="contained"
+                    size="large"
+                    color="secondary"
+                    onClick={this.handleClose}
+                    style={{ margin: "10px" }}
+                  >
+                    gg
+                  </Button>
+                </Container>
+              </Dialog>
             </div>
           </div>
         </div>

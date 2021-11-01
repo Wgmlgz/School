@@ -120,7 +120,7 @@ struct UiEngine {
           }
         }
       }
-      wwasm::ioSetStr("warehouse_json", engine.warehouse_json);
+      wwasm::ioSetStr("warehouse_json", engine.warehouse_json.dump());
     }
     core.updateClock();
   }

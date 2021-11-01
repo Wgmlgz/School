@@ -1,6 +1,9 @@
 #pragma once
 #include "Core.hpp"
 #include "Logger.hpp"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 struct PackageInfo {
   std::string type_ = "UNDEFINED";
@@ -22,12 +25,22 @@ struct PackageInfo {
   }
 };
 
+void to_json(json& j, const PackageInfo& pi) {
+  j = json{
+    {"type", pi.type_},
+    {"expiration time", std::to_string(pi.expiration_time_)},
+    {"cost",  std::to_string(pi.cost_)},
+    {"weight", std::to_string(pi.weight_)},
+    {"count in package", std::to_string(pi.count_in_package_)}
+  };
+}
+
 std::map<std::string, PackageInfo> PackageInfo::items{
-    {"DEFAULT", {"DEFAULT", 1, 1, 1, 1}},            /* 1 egg */
-    {"Egg", {"Egg", 90, 6, 0.05, 20}},           /* 1 egg */
-    {"Milk", {"Milk", 2, 55, 1, 10}},                /* 1 boutle */
+    {"DEFAULT", {"DEFAULT", 1, 1, 1, 1}},             /* 1 egg */
+    {"Egg", {"Egg", 90, 6, 0.05, 20}},                /* 1 egg */
+    {"Milk", {"Milk", 2, 55, 1, 10}},                 /* 1 boutle */
     {"Tissues", {"Tissues", 1000000000, 75, 0.1, 5}}, /* 1 package */
-    {"Fish", {"Fish", 2, 1800, 2, 10}},              /* 1 fish */
+    {"Fish", {"Fish", 2, 1800, 2, 10}},               /* 1 fish */
     {"LSD", {"LSD", 1000000000, 255000, 0.001, 2}},   /* 1 gram */
 };
 
@@ -54,14 +67,24 @@ struct Package {
   std::string json() {
     std::string res = "{";
 
-    res += R"("production_time_":)" + std::to_string(production_time_) + ',';
-    res += R"("package_info_":)" + (package_info.type_) + ',';
-    res += R"("cost_":)" + std::to_string(cost_) + ',';
-    res += R"("weight_":)" + std::to_string(weight_) + ',';
-    res += R"("id_":)" + std::to_string(id_)+ ',';
-    res += R"("house_id_":)" + std::to_string(house_id_);
+    res += R"("production time":)" + std::to_string(production_time_) + ',';
+    res += R"("package info":)" + (package_info.type_) + ',';
+    res += R"("cost":)" + std::to_string(cost_) + ',';
+    res += R"("weight":)" + std::to_string(weight_) + ',';
+    res += R"("id":)" + std::to_string(id_)+ ',';
+    res += R"("house id":)" + std::to_string(house_id_);
 
     res += "}";
     return res;
   }
 };
+
+void to_json(json& j, const Package& pi) {
+  j = json{
+    {"production time", pi.production_time_},
+    {"package info", pi.package_info.type_},
+    {"cost", std::to_string(pi.cost_)},
+    {"weight", std::to_string(pi.weight_)},
+    {"house id", std::to_string(pi.house_id_)}
+  };
+}

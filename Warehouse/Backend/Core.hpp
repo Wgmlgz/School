@@ -33,9 +33,11 @@ struct Core {
   std::default_random_engine generator = std::default_random_engine(rd());
   std::uniform_real_distribution<double> distr = std::uniform_real_distribution<double>(0.0, 1.0);
 
-  // double rngd() {
-  //   return distr(generator);
-  // }
+  std::map<idt, std::string> id2str;
+  
+  double rngd() {
+    return distr(generator);
+  }
   // dur rngDayTime() {
   //   return duration<double>(distr(generator) * day);
   // }

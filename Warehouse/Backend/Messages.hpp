@@ -29,6 +29,16 @@ struct Request {
   }
 };
 
+void to_json(json& j, const Request& re) {
+  j = json{
+      {"from", core.id2str[re.from_]},
+      {"amount", re.amount_},
+      {"to", core.id2str[re.to_]},
+      {"package", re.package_.type_},
+      {"day", re.day_},
+  };
+}
+
 struct Contract {
   idt from_, to_;
   std::vector<std::shared_ptr<Package>> content_;
@@ -54,3 +64,11 @@ struct Contract {
     return res;
   }
 };
+
+void to_json(json& j, const Contract& co) {
+  j = json{
+      {"from", core.id2str[co.from_]},
+      {"to", core.id2str[co.to_]},
+      {"time", co.time_},
+  };
+}
