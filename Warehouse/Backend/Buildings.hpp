@@ -54,8 +54,16 @@ struct Client : public Building {
   std::normal_distribution<> amount_rng_;
   double request_probability_;
 
+  template <typename T>
+  static std::string int2hex(T i) {
+    std::stringstream stream;
+    stream << std::setfill('0') << std::setw(sizeof(T) * 2) << std::hex
+           << i;
+    return stream.str();
+  }
+
   virtual std::string name() {
-    return "Client";
+    return "Client_" + int2hex(id_).substr(0, 4);
   }
 
   Client(const json& j) {

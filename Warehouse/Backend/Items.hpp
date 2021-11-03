@@ -74,8 +74,6 @@ struct Package {
     weight_ = package_info.weight_ * package_info.count_in_package_;
     id_ = core.rng();
     house_id_ = house_id;
-
-    wlog(json());
   }
 
   std::string json() {

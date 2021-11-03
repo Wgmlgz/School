@@ -137,7 +137,6 @@ struct UiEngine {
 
   std::function<void(const Request& request)> onPushRequest =
   [&](const Request& request) {
-    wlog("New request: " + request.json());
     cnv.pushEntity("request_" + std::to_string(request.id_),
       new wwasm::Img(
         {0.0, 0.0},

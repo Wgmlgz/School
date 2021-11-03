@@ -85,7 +85,6 @@ struct Engine {
   }
 
   void pushContract(const Contract& contract) {
-    wlog("Pushed contract: " +  contract.json());
     for (auto& i : contract.content_) {
       buildings_list_.at(contract.to_)->pushPackage(i);
     }
@@ -194,7 +193,6 @@ struct Engine {
     }
     while (self.request_queue.size() and
            self.request_queue.begin()->first <= core.day) {
-      wlog(std::to_string(self.request_queue.begin()->first) + " " + std::to_string(core.day));
       auto request = self.request_queue.begin()->second;
       self.request_queue.erase(self.request_queue.begin());
 

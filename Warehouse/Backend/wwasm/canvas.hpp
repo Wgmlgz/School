@@ -189,7 +189,6 @@ struct Canvas {
   void pushEntity(int z, std::string id, Entity* entity) {
     entities_[z] = std::shared_ptr<Entity>(entity);
     entities_str_[id] = z;
-    std::cout << z << std::endl;
   }
 
   void popEntity(const std::string& id) {
