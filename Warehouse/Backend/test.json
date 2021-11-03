@@ -1,0 +1,16 @@
+{
+  "packages": {
+    "n": 4
+  },
+  "clients": {
+    "n": 4,
+    "amount": {
+      "mean": 4.0,
+      "stddev": 2.0
+    },
+    "type": {
+      "base": 10,
+      "diff": 10
+    }
+  }
+}

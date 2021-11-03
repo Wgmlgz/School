@@ -292,8 +292,6 @@ struct Img : public Canvas::Entity {
       }
       x += offset;
     }
-
-    
   }
   virtual std::string renderJSON(CTR canvas) override {
     Pt a, b = wh_; 

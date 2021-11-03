@@ -13,6 +13,8 @@ export let getCanvasData = () => null;
 export let getCanvasJSON = () => null;
 export let readUint8Array = () => null;
 export let wwasmUpdate = () => null;
+export let wwasmInvoke = () => null;
+
 export let is_init = false;
 
 WWasmModule().then((Module) => {
@@ -24,6 +26,7 @@ WWasmModule().then((Module) => {
 
   ioSetStr = Module.cwrap("ioSetStr", "string", ["string", "string"]);
   ioGetStr = Module.cwrap("ioGetStr", "string", ["string"]);
+  wwasmInvoke = Module.cwrap("wwasmInvoke", "number", ["string"]);
 
   getCanvasData = Module.cwrap("getCanvasData", "number", [
     "string",

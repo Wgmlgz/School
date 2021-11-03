@@ -32,11 +32,12 @@ struct UiEngine {
   const Pti next_shelf_offset{0, -60};
   const Pti next_package_offset{60, 0};
   const Pti package_offset{15, 20};
+  const Pti building_offset{175, 175};
 
-  void createBuiling(Pt pos, Building* building, const std::string& img) {
+  void createBuiling(Pt pos, Building* building, const std::string& img, Pt offset = {0, 0}, Pt size = {400, 400}) {
     cnv.pushEntity(
       "building_" + std::to_string(building->id_),
-      new wwasm::Img(pos, img, {400, 400})
+      new wwasm::Img(pos + offset, img, size)
     );
     locations[building->id_] = pos;
     pos += shelf_offset;
@@ -51,11 +52,11 @@ struct UiEngine {
       }
     }
   }
-  UiEngine(Engine& eng) : engine(eng), cnv(wwasm::Canvas::regiesterCanvas("main_canvas")) {
+  
+  UiEngine(Engine& eng, wwasm::Canvas& canvas) : engine(eng), cnv(canvas) {
     // core.updateClock();
-
-    Pt loc{-700, 0};
-    auto angle = -0.6;
+    Pt loc{-2000, 0};
+    auto angle = -0.4;
     // last_update = core.clock;
     auto angle_num = std::polar(1.0, angle);
     auto angle_num_r = std::polar(1.0, -angle);
@@ -65,13 +66,15 @@ struct UiEngine {
       loc *= angle_num;
     }
 
-    createBuiling({0, 0}, &engine.warehouse_, "warehouse_img");
+    createBuiling({0, 0}, &engine.warehouse_, "warehouse_img", {-25, -400 * 2}, {400 * 5 + 50, 400 * 3});
     createBuiling({2500, -500}, &engine.factory_, "factory_img");
-    createBuiling({0, -1000}, &engine.trash_, "trash_img");
+    createBuiling({(400 * 5 + 50) / 2 - 200, -2000}, &engine.trash_, "trash_img");
 
     engine.on_push_contract = onPushContract;
     engine.on_push_request = onPushRequest;
     engine.on_package_created = onPackageCreated;
+
+    wwasm::setEvent("test_event", [](){wlog("da");});
   }  
 
   void update() {
@@ -82,7 +85,7 @@ struct UiEngine {
       engine.update();
 
       /* Packages movement */
-      auto package_move = [&](auto& pos, auto package) {
+      auto package_move = [&](auto& pos, auto package, bool remove = false) {
         auto new_pos = pos;
         auto old_pos = static_cast<Pti>(locations[package->id_]);
 
@@ -96,10 +99,16 @@ struct UiEngine {
               {0, pt2Frm(old_pos)},
               {0.5, pt2Frm(new_pos)},
             },
-            [](wwasm::anim& a) {}
+            [=](wwasm::anim& a) {
+              if (remove) {
+                cnv.popEntity(s);
+              }
+            }
           )
         );
       };
+      //return;
+
       for (auto& [bid, building] : engine.buildings_list_) {
         auto building_pos = static_cast<Pti>(locations[bid]);
         if (auto warehouse = dynamic_cast<Warehouse*>(building)) {
@@ -115,8 +124,8 @@ struct UiEngine {
           }
         } else {
           for (auto& package : building->storage) {
-            auto t = building_pos + Pti{75, 75};
-            package_move(t, package);
+            auto t = building_pos + building_offset;
+            package_move(t, package, true);
           }
         }
       }
@@ -165,7 +174,7 @@ struct UiEngine {
     auto pos = locations[engine.factory_.id_];
     cnv.pushEntity("package_" + std::to_string(package->id_),
       new wwasm::Img(
-        pos + Pt{75, 75},
+        pos + Pt(building_offset.real(), building_offset.imag()),
         "package_img",
         {50, 50}
       )
@@ -191,6 +200,10 @@ struct UiEngine {
     // );
   // };
 // };
+  ~UiEngine() {
+    cnv.clear();
+  }
 };
 
-UiEngine ui_engine(engine);
+UiEngine ui_engine(engine, wwasm::Canvas::getCanvas("default"));
+// UiEngine ui_engine(engine, );

@@ -8,9 +8,38 @@
 
 using json = nlohmann::json;
 
-struct Engine {
-  int K, M;
+json default_settings = json::parse(R"({
+  "packages": {
+    "n": 4
+  },
+  "clients": {
+    "n": 4,
+    "amount": {
+      "mean": 4.0,
+      "stddev": 2.0
+    },
+    "type": {
+      "base": 10,
+      "diff": 10
+    },
+    "request propability": {
+      "mean": 0.5,
+      "stddev": 0.2
+    }
+  },
+  "factory": {
+    "wait time": {
+      "mean": 4,
+      "stddev": 1
+    }
+  },
+  "warehouse": {
+    "max capacity": 30,
+    "threshold": 25
+  }
+})");
 
+struct Engine {
   std::vector<std::string> packages_by_n;
 
   std::map<idt, std::shared_ptr<Package>> packages_list_;
@@ -30,29 +59,21 @@ struct Engine {
   std::function<void(const std::shared_ptr<Package>&, idt)> on_package_moved = [](auto a, auto b){};
 
   json warehouse_json;
+  json settings;
 
-  json j = {{"pi", 3.141},
-            {"happy", true},
-            {"name", "Niels"},
-            {"nothing", nullptr},
-            {"answer", {{"everything", 42}}},
-            {"list", {1, 0, 2}},
-            {"object", {{"currency", "USD"}, {"value", 42.99}}}};
-
-  Engine(int k, int m)
-      : K(k),
-       M(m) {
+  Engine(const json& j) : settings(j), factory_(Factory(j)), warehouse_(Warehouse(j)) {
     buildings_list_.insert({trash_.id_, &trash_});
     buildings_list_.insert({factory_.id_, &factory_});
     buildings_list_.insert({warehouse_.id_, &warehouse_});
 
     auto it = PackageInfo::items.begin();
-    for (int i = 0; i < K; ++i) {
+    wlog(settings.dump(2));
+    for (int i = 0; i < settings["packages"]["n"].get<int>(); ++i) {
       packages_by_n.push_back(it->first);
       ++it;
     }
-    for (int i = 0; i < M; ++i) {
-      clients.emplace_back(K);
+    for (int i = 0; i < settings["clients"]["n"].get<int>(); ++i) {
+      clients.push_back(Client(settings));
     }
     for (auto& i : clients) {
       buildings_list_.insert({i.id_, &i});
@@ -80,12 +101,11 @@ struct Engine {
     if (core.rngd() < self.request_probability_) {
       PackageInfo::items.size();
       std::string package_type = packages_by_n[self.package_rng_(core.rng)];
+      int amount = self.amount_rng_(core.rng);
 
-      pushRequest(Request(self.id_, warehouse_.id_, PackageInfo::items[package_type], 3, core.day));
+      pushRequest(Request(self.id_, warehouse_.id_,
+                          PackageInfo::items[package_type], amount, core.day));
     }
-    if (core.rng() % 5 == 0) pushRequest(Request(self.id_, warehouse_.id_, PackageInfo::items["Milk"], 3, core.day));
-    
-    /* Apply contacts */
   }
 
   void updateWarehouse(Warehouse& self, std::list<Request>& requests) {
@@ -93,45 +113,53 @@ struct Engine {
     warehouse_json.clear();
 
     warehouse_json["in requests"] = requests;
-    // warehouse_json += range2arr("in requests", requests, [](const Request& req){return req.json();});
-    // warehouse_json += ",";
 
     /* Process requsts */
     std::vector<Request> new_requests;
-    // std::vector<Contract> new_requests;
-
-    for (auto i = requests.begin(); i != requests.end();) {
-      if (i->amount_ > self.shelfs[i->package_.type_].size()) {
-        // TODO remove this
-        auto request = Request(self.id_, factory_.id_, i->package_, i->amount_, core.day);
-        new_requests.push_back(request);
-        pushRequest(request);
-
-        auto t = i;
-        ++i;
-        requests.erase(t);
+    while (requests.size()) {
+      auto request = requests.front();
+      requests.pop_front();
+      
+      auto package_type = request.package_.type_;
+      if (request.amount_ > self.shelfs[package_type].size()) {
         continue;
       }
 
+      /* resolve request */
       std::vector<std::shared_ptr<Package>> contract_content;
-      for (auto j = 0; j < i->amount_; ++j) {
-        auto package = self.shelfs[i->package_.type_].front();
-        self.shelfs[i->package_.type_].pop_front();
+      for (auto j = 0; j < request.amount_; ++j) {
+        auto package = self.shelfs[package_type].front();
+        self.shelfs[package_type].pop_front();
         contract_content.push_back(package);
-        // self.storage[i->package_.type_].pop_front();
+        --self.virtual_size[package_type];
       }
-      pushContract(Contract(self.id_, i->from_, contract_content, core.day));
-      auto t = i;
-      ++i;
-      requests.erase(t);
+      pushContract(Contract(self.id_, request.from_, contract_content, core.day));
+
+
+    
     }
 
-    // TODO threshold stuff
+    /**
+     * ######.........
+     * threshold^
+     *       #########
+     * buy this^
+     *
+     */
+    for (const auto& package_type : packages_by_n) {
+      wlog("aaa:   " << self.virtual_size[package_type]);
 
+      if (self.virtual_size[package_type] < self.threshold) {
+
+        auto factory_request =
+            Request(self.id_, factory_.id_, PackageInfo::items[package_type],
+                    self.max_size - self.virtual_size[package_type], core.day);
+        new_requests.push_back(factory_request);
+        pushRequest(factory_request);
+        self.virtual_size[package_type] = self.max_size;
+      }
+    }
     warehouse_json["out requests"] = new_requests;
-    // warehouse_json += range2arr("out requests", new_requests, [](const Request& req){return req.json();});
-    // warehouse_json += "}";
-    // warehouse_json = warehouse_json;
   }
 
   //* DONE
@@ -144,7 +172,7 @@ struct Engine {
     wlog("Factory update");
     /* Process requests */
     for (auto i = requests.begin(); i != requests.end();) {
-      dayt done_day = core.day + 2;
+      dayt done_day = core.day + std::round(self.wait_rng_(core.rng));
 
       self.request_queue.insert({done_day, *i});
 
@@ -174,9 +202,10 @@ struct Engine {
   //          (&buildings_list_.at(p->house_id_))->name());
   //   }
   // }
+
   void update() {
-    for(auto& client : clients) updateClient(client);
     updateWarehouse(warehouse_, requests_[warehouse_.id_]);
+    for(auto& client : clients) updateClient(client);
     updateFactory(factory_, requests_[factory_.id_]);
     updateTrash(trash_, requests_[trash_.id_]);
   }
@@ -189,4 +218,5 @@ struct Engine {
   }
 };
 
-Engine engine(6, 4);
+Engine engine(default_settings);
+

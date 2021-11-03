@@ -35,6 +35,8 @@ import ReactJson from "react-json-view";
 import MainPage from "./MainPage.jsx";
 import { Container } from "@material-ui/core";
 
+import {ioSetStr, wwasmInvoke} from "./wwasm/wwasm.js";
+
 const theme = createTheme({
   palette: {
     type: "dark",
@@ -93,16 +95,50 @@ const style = {
 export default class App extends React.Component {
   state = {
     is_main: false,
-    src: { test: "da", among: "us" }
+    src: {
+      packages: {
+        n: 4,
+      },
+      clients: {
+        n: 4,
+        amount: {
+          mean: 4.0,
+          stddev: 2.0,
+        },
+        type: {
+          base: 10,
+          diff: 10,
+        },
+        "request propability": {
+          mean: 0.5,
+          stddev: 0.2,
+        },
+      },
+      factory: {
+        "wait time": {
+          mean: 10.0,
+          stddev: 3.0,
+        },
+      },
+      warehouse: {
+        "max capacity": 30,
+        threshold: 25,
+      },
+    },
   };
 
-  Reset = () => {
-    console.log("da");
+  Restart = () => {
     this.setState({ is_main: false });
   };
 
-  handleClose = () => {
+  onClose = () => {
+    console.log("da");
+
+    ioSetStr("settings", JSON.stringify(this.state.src));
+    console.log(this.state.src);
+
     this.setState({ is_main: true });
+    wwasmInvoke("restart");
   };
 
   render() {
@@ -115,7 +151,6 @@ export default class App extends React.Component {
               <Toolbar variant="dense">
                 <Typography
                   variant="h5"
-                  color="#fff"
                   component="div"
                   style={{ margin: "10px" }}
                 >
@@ -125,7 +160,7 @@ export default class App extends React.Component {
                   variant="contained"
                   size="large"
                   color="secondary"
-                  onClick={this.Reset}
+                  onClick={this.Restart}
                   style={{ margin: "10px" }}
                 >
                   Restart
@@ -150,7 +185,7 @@ export default class App extends React.Component {
             <div
               style={{ visibility: this.state.is_main ? "hidden" : "visible" }}
             >
-              <Dialog open={!this.state.is_main} onClose={this.handleClose}>
+              <Dialog open={!this.state.is_main}>
                 <Container>
                   <DialogTitle>IMPOSTOR from game anong aus!!!!</DialogTitle>
                   <Container>
@@ -175,7 +210,7 @@ export default class App extends React.Component {
                     variant="contained"
                     size="large"
                     color="secondary"
-                    onClick={this.handleClose}
+                    onClick={this.onClose}
                     style={{ margin: "10px" }}
                   >
                     gg

@@ -24,16 +24,22 @@ struct Building {
 
 struct Warehouse : public Building {
   std::map<std::string, std::list<std::shared_ptr<Package>>> shelfs;
+  std::map<std::string, int> virtual_size;
+
+  int threshold;
+  int max_size;
 
   virtual std::string name() override {
     return "Warehouse";
   }
 
-  Warehouse() {
+  Warehouse(const json& j) {
     core.id2str[id_] = name();
     for (auto& [str, _] : PackageInfo::items) {
       shelfs[str] = {};
     }
+    max_size = j["warehouse"]["max capacity"].get<int>();
+    threshold = j["warehouse"]["threshold"].get<int>();
   }
 
   virtual void pushPackage(std::shared_ptr<Package> package) override {
@@ -52,16 +58,25 @@ struct Client : public Building {
     return "Client";
   }
 
-  Client(int n) {
+  Client(const json& j) {
     core.id2str[id_] = name();
 
     // std::initializer_list<double> probabilities(n);
     // std::initializer_list<double> probabilities(n);
-    std::vector<double> probabilities(n);
-    for (auto& i : probabilities) i = core.rngd();
+    std::vector<double> probabilities(j["packages"]["n"].get<int>());
+    for (auto& i : probabilities)
+      i = j["clients"]["type"]["base"].get<int>() +
+          core.rng() % j["clients"]["type"]["diff"].get<int>();
     // amount_rng_ = {core.rng() % };
     // std::initializer_list<double> l = probabilities;
     package_rng_ = std::discrete_distribution<>(probabilities.begin(), probabilities.end());
+    amount_rng_ = std::normal_distribution<>(
+        j["clients"]["amount"]["mean"].get<double>(),
+        j["clients"]["amount"]["stddev"].get<double>());
+
+    request_probability_ = std::normal_distribution<>(
+        j["clients"]["request propability"]["mean"].get<double>(),
+        j["clients"]["request propability"]["stddev"].get<double>())(core.rng);
   }
 
   // void generateRequest() {
@@ -70,11 +85,17 @@ struct Client : public Building {
 };
 
 struct Factory : public Building {
-  std::map<dayt, Request> request_queue;
+  std::normal_distribution<> wait_rng_;
+  std::multimap<dayt, Request> request_queue;
   virtual std::string name() {
     return "Factory";
   }
-  Factory() { core.id2str[id_] = name(); }
+  Factory(const json& j) {
+    core.id2str[id_] = name();
+    wait_rng_ = std::normal_distribution<>(
+        j["factory"]["wait time"]["mean"].get<double>(),
+        j["factory"]["wait time"]["stddev"].get<double>());
+  }
 };
 
 struct Trash : public Building {

@@ -92,12 +92,12 @@ struct Canvas {
   };
 
   Canvas(std::string id, size_t w, size_t h) {
-    /* 4k max  */
     id_ = id;
-    data_ = new u8[33'177'600 + 1024];
+    data_ = new u8[w * h * 10 + 1024];
     data_ += 1024;
     reset(w, h);
   }
+  Canvas() {}
 
   void reset(int w, int h, bool do_fill = false) {
     h_ = h;
@@ -225,6 +225,14 @@ struct Canvas {
     setX(ioGetDouble(id_ + "_x"));
     setY(ioGetDouble(id_ + "_y"));
   }
+
+  void clear() {
+    entities_.clear();
+    animations_.clear();
+    entities_str_.clear();
+    while(remove_queue.size()) remove_queue.pop();
+  }
+
   uint8_t* render() {
     updateIO();
 
@@ -239,6 +247,8 @@ struct Canvas {
     removeEntities();
     return data();
   }
+
+
   std::string renderJSON() {
     updateIO();
 
@@ -295,17 +305,18 @@ struct Canvas {
   std::map<std::string, int> entities_str_;
   std::queue<std::string> remove_queue;
 
-  static std::map<std::string, std::shared_ptr<Canvas>> canvases;
+  static std::map<std::string, Canvas> canvases;
 
   static Canvas& getCanvas(std::string name) {
-    return *canvases.at(name);
+    return canvases.at(name);
   }
 
   static Canvas& regiesterCanvas(std::string name) {
-    canvases.insert({name, std::shared_ptr<Canvas>(new Canvas(name, 500, 500))});
+    canvases.emplace(name, Canvas(name, 500, 500));
     return getCanvas(name);
   }
 };
+std::map<std::string, Canvas> Canvas::canvases = {{"default", Canvas("default", 10, 10)}};
 
 extern "C" {
 EMSCRIPTEN_KEEPALIVE uint8_t* getCanvasData(char* ptr, int w, int h) {
@@ -315,14 +326,16 @@ EMSCRIPTEN_KEEPALIVE uint8_t* getCanvasData(char* ptr, int w, int h) {
   auto res = canvas.render();
   return res;
 }
-EMSCRIPTEN_KEEPALIVE char* getCanvasJSON(char* ptr, int w, int h) {
+
+EMSCRIPTEN_KEEPALIVE const char* getCanvasJSON(char* ptr, int w, int h) {
   std::string id(ptr);
   auto& canvas = Canvas::getCanvas(id);
   canvas.reset(w, h, false);
   auto str = canvas.renderJSON();
-  char* cstr = new char[str.length() + 1];
-  strcpy(cstr, str.c_str());
-  return cstr;
+  
+  static std::string buff;
+  buff = str;
+  return buff.c_str();
 }
 }
 }  // namespace wwasm
