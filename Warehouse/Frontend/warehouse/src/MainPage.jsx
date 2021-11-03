@@ -1,73 +1,29 @@
 import "./App.scss";
-import "./Frogs/frog1.jpg";
 
-import ClientImg from "./Frogs/Client.png";
-import WarehouseImg from "./Frogs/Warehouse.png";
-import FactoryImg from "./Frogs/Factory.png";
-import TrashImg from "./Frogs/Trash.png";
-import RequestImg from "./Frogs/Request.png";
-import PackageImg from "./Frogs/Package.png";
-import ShelfImg from "./Frogs/Shelf.png";
+import ClientImg from "./Images/Client.png";
+import WarehouseImg from "./Images/Warehouse.png";
+import FactoryImg from "./Images/Factory.png";
+import TrashImg from "./Images/Trash.png";
+import RequestImg from "./Images/Request.png";
+import PackageImg from "./Images/Package.png";
+import ShelfImg from "./Images/Shelf.png";
 
 import Button from "@material-ui/core/Button";
-import Box from "@material-ui/core/Box";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
-import Card from "@material-ui/core/Card";
 
-import TextField from "@material-ui/core/TextField";
-import CssBaseline from "@material-ui/core/CssBaseline";
 
 import ReactJson from "react-json-view";
-import { ThemeProvider, createTheme } from "@material-ui/core/styles";
 
-import React, { useState, setEffect } from "react";
+import React from "react";
 import "./index.css";
-// import Stats from './Stats.jsx'
-import Frog from "./Frog.js";
 import WCanvas from "./wwasm/canvas.jsx";
 
-import { ioGetStr, ioSetStr } from "./wwasm/wwasm.js";
-import {
-  CardContent,
-  CardHeader,
+import { ioGetStr } from "./wwasm/wwasm.js";
+import { 
   Container,
   Grid,
   Paper,
 } from "@material-ui/core";
-
-const theme = createTheme({
-  palette: {
-    type: "dark",
-    primary: {
-      main: "#bd93f9",
-    },
-    secondary: {
-      main: "#50fa7b",
-    },
-    background: {
-      default: "#181a1f",
-      paper: "#44475a",
-    },
-    error: {
-      main: "#ffb86c",
-    },
-    info: {
-      main: "#8be9fd",
-    },
-    success: {
-      main: "#50fa7b",
-    },
-  },
-  typography: {
-    fontFamily: "Rubik",
-  },
-  shape: {
-    borderRadius: 20,
-  },
-});
 
 const dracula16 = {
   base00: "#44475a",
@@ -148,13 +104,13 @@ export default class MainPage extends React.Component {
           </Grid>
         </Grid>
         <div className="hidden">
-          <img src={ClientImg} id="client_img" />
-          <img src={WarehouseImg} id="warehouse_img" />
-          <img src={FactoryImg} id="factory_img" />
-          <img src={TrashImg} id="trash_img" />
-          <img src={RequestImg} id="request_img" />
-          <img src={ShelfImg} id="shelf_img" />
-          <img src={PackageImg} id="package_img" />
+          <img src={ClientImg} id="client_img" alt="" />
+          <img src={WarehouseImg} id="warehouse_img" alt="" />
+          <img src={FactoryImg} id="factory_img" alt="" />
+          <img src={TrashImg} id="trash_img" alt="" />
+          <img src={RequestImg} id="request_img" alt="" />
+          <img src={ShelfImg} id="shelf_img" alt="" />
+          <img src={PackageImg} id="package_img" alt="" />
         </div>
       </div>
     );

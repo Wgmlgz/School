@@ -53,7 +53,6 @@ struct Engine {
   std::map<idt, std::list<Contract>> contracts_;
   std::map<idt, std::list<Request>> requests_;
 
-  std::function<void(const Contract&)> on_push_contract = [](auto a){};
   std::function<void(const Request&)> on_push_request = [](auto a){};
   std::function<void(const std::shared_ptr<Package>&)> on_package_created = [](auto a){};
   std::function<void(const std::shared_ptr<Package>&, idt)> on_package_moved = [](auto a, auto b){};
@@ -67,23 +66,26 @@ struct Engine {
     buildings_list_.insert({warehouse_.id_, &warehouse_});
 
     auto it = PackageInfo::items.begin();
-    wlog(settings.dump(2));
-    for (int i = 0; i < settings["packages"]["n"].get<int>(); ++i) {
-      packages_by_n.push_back(it->first);
-      ++it;
-    }
+
+    for (auto& [key, _] : PackageInfo::items)
+      packages_by_n.push_back(key);
+    
+    std::shuffle(packages_by_n.begin(), packages_by_n.end(), core.rng);
+    
+    auto n_to_erase = packages_by_n.size() - settings["packages"]["n"].get<int>();
+    for (int i = 0; i < n_to_erase; ++i)
+      packages_by_n.pop_back();
+
     for (int i = 0; i < settings["clients"]["n"].get<int>(); ++i) {
       clients.push_back(Client(settings));
     }
     for (auto& i : clients) {
       buildings_list_.insert({i.id_, &i});
     }
-    wlog(j);
   }
 
   void pushContract(const Contract& contract) {
     wlog("Pushed contract: " +  contract.json());
-    on_push_contract(contract);
     for (auto& i : contract.content_) {
       buildings_list_.at(contract.to_)->pushPackage(i);
     }
@@ -114,6 +116,25 @@ struct Engine {
 
     warehouse_json["in requests"] = requests;
 
+    /* Remove old packages */
+    std::vector<std::shared_ptr<Package>> remove_contract_content;
+    for (const auto& package_type : packages_by_n) {
+      while (self.shelfs[package_type].size() and
+             self.shelfs[package_type].front()->production_time_ +
+                     PackageInfo::items[package_type].expiration_time_ <
+                 core.day) {
+        auto t = self.shelfs[package_type].front();
+        self.shelfs[package_type].pop_front();
+        --self.virtual_size[package_type];
+        remove_contract_content.push_back(t);
+      }
+    }
+
+    if (remove_contract_content.size()) {
+      pushContract(
+          Contract(self.id_, trash_.id_, remove_contract_content, core.day));
+    }
+
     /* Process requsts */
     std::vector<Request> new_requests;
     while (requests.size()) {
@@ -125,7 +146,7 @@ struct Engine {
         continue;
       }
 
-      /* resolve request */
+      /* Resolve request */
       std::vector<std::shared_ptr<Package>> contract_content;
       for (auto j = 0; j < request.amount_; ++j) {
         auto package = self.shelfs[package_type].front();
@@ -134,10 +155,8 @@ struct Engine {
         --self.virtual_size[package_type];
       }
       pushContract(Contract(self.id_, request.from_, contract_content, core.day));
-
-
-    
     }
+
 
     /**
      * ######.........
@@ -147,8 +166,6 @@ struct Engine {
      *
      */
     for (const auto& package_type : packages_by_n) {
-      wlog("aaa:   " << self.virtual_size[package_type]);
-
       if (self.virtual_size[package_type] < self.threshold) {
 
         auto factory_request =
@@ -160,11 +177,6 @@ struct Engine {
       }
     }
     warehouse_json["out requests"] = new_requests;
-  }
-
-  //* DONE
-  void updateTrash(Trash& self, std::list<Request>& requests) {
-    wlog("Trash update");
   }
 
   //* DONE
@@ -207,7 +219,6 @@ struct Engine {
     updateWarehouse(warehouse_, requests_[warehouse_.id_]);
     for(auto& client : clients) updateClient(client);
     updateFactory(factory_, requests_[factory_.id_]);
-    updateTrash(trash_, requests_[trash_.id_]);
   }
 
   std::shared_ptr<Package> createPackage(const std::string& type) {

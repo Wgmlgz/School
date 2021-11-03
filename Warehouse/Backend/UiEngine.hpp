@@ -18,8 +18,6 @@ auto pt2Frm(auto pt) {
 
 /**
  * Singleton controller for wwasm stuff
- * Day timing:
- * 0 
  */
 struct UiEngine {
   wwasm::Canvas& cnv;
@@ -27,19 +25,21 @@ struct UiEngine {
   TimePoint next_update;
 
   std::map<idt, Pt> locations;
+  std::map<idt, Pt> raw_locations;
 
-  const Pti shelf_offset{0, -100};
+  const Pti shelf_offset{0, 200};
   const Pti next_shelf_offset{0, -60};
   const Pti next_package_offset{60, 0};
   const Pti package_offset{15, 20};
-  const Pti building_offset{175, 175};
+  const Pti building_offset{0, 0};
 
-  void createBuiling(Pt pos, Building* building, const std::string& img, Pt offset = {0, 0}, Pt size = {400, 400}) {
-    cnv.pushEntity(
-      "building_" + std::to_string(building->id_),
-      new wwasm::Img(pos + offset, img, size)
-    );
-    locations[building->id_] = pos;
+  void createBuiling(Pt pos, Building* building, const std::string& img,
+                     Pt offset = {0, 0}, Pt raw_offset = {0, 0},
+                     Pt size = {400, 400}) {
+    cnv.pushEntity("building_" + std::to_string(building->id_),
+                   new wwasm::Img(pos + offset, img, size));
+    locations[building->id_] = raw_offset + pos + Pt{size.real() / 2 - 25, size.imag() / 2 - 25};
+    raw_locations[building->id_] = pos;
     pos += shelf_offset;
 
     if (auto warehouse = dynamic_cast<Warehouse*>(building)) {
@@ -52,7 +52,7 @@ struct UiEngine {
       }
     }
   }
-  
+
   UiEngine(Engine& eng, wwasm::Canvas& canvas) : engine(eng), cnv(canvas) {
     // core.updateClock();
     Pt loc{-2000, 0};
@@ -66,15 +66,15 @@ struct UiEngine {
       loc *= angle_num;
     }
 
-    createBuiling({0, 0}, &engine.warehouse_, "warehouse_img", {-25, -400 * 2}, {400 * 5 + 50, 400 * 3});
+    createBuiling({0, 0}, &engine.warehouse_, "warehouse_img",
+                  {-25, -400 * 2 - 200},
+                  {-25, -400},
+                  {400 * 5 + 50, 400 * 3 + 200});
     createBuiling({2500, -500}, &engine.factory_, "factory_img");
     createBuiling({(400 * 5 + 50) / 2 - 200, -2000}, &engine.trash_, "trash_img");
 
-    engine.on_push_contract = onPushContract;
     engine.on_push_request = onPushRequest;
     engine.on_package_created = onPackageCreated;
-
-    wwasm::setEvent("test_event", [](){wlog("da");});
   }  
 
   void update() {
@@ -112,6 +112,7 @@ struct UiEngine {
       for (auto& [bid, building] : engine.buildings_list_) {
         auto building_pos = static_cast<Pti>(locations[bid]);
         if (auto warehouse = dynamic_cast<Warehouse*>(building)) {
+          building_pos = raw_locations[bid];
           building_pos += shelf_offset;
           for (auto& [ptype, shelf] : warehouse->shelfs) {
             auto pos = building_pos;
@@ -134,11 +135,6 @@ struct UiEngine {
     core.updateClock();
   }
 
-  std::function<void(const Contract& contract)> onPushContract =
-  [&](const Contract& contract) {
-    wlog("New contract: " + contract.json());
-  };
-
   std::function<void(const Request& request)> onPushRequest =
   [&](const Request& request) {
     wlog("New request: " + request.json());
@@ -150,8 +146,8 @@ struct UiEngine {
       )
     );
 
-    auto a = locations[request.from_] + Pt{50, 50};
-    auto b = locations[request.to_] + Pt{50, 50};
+    auto a = locations[request.from_] + Pt(building_offset.real(), building_offset.imag());
+    auto b = locations[request.to_] + Pt(building_offset.real(), building_offset.imag());
 
     auto start =
       wwasm::frm("pos_x", wwasm::prp(a.real())) |
@@ -175,7 +171,7 @@ struct UiEngine {
     cnv.pushEntity("package_" + std::to_string(package->id_),
       new wwasm::Img(
         pos + Pt(building_offset.real(), building_offset.imag()),
-        "package_img",
+        package->package_info.type_,
         {50, 50}
       )
     );

@@ -62,7 +62,7 @@ export default function WCanvas(props) {
     } else {
       drawCanvasJSON(canvas_id, w, h);
     }
-  }, 8);
+  }, 16);
 
 
   return (<div id={canvas_id + "_div"}>

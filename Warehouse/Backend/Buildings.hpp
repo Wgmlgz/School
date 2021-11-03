@@ -61,14 +61,11 @@ struct Client : public Building {
   Client(const json& j) {
     core.id2str[id_] = name();
 
-    // std::initializer_list<double> probabilities(n);
-    // std::initializer_list<double> probabilities(n);
     std::vector<double> probabilities(j["packages"]["n"].get<int>());
     for (auto& i : probabilities)
       i = j["clients"]["type"]["base"].get<int>() +
           core.rng() % j["clients"]["type"]["diff"].get<int>();
-    // amount_rng_ = {core.rng() % };
-    // std::initializer_list<double> l = probabilities;
+
     package_rng_ = std::discrete_distribution<>(probabilities.begin(), probabilities.end());
     amount_rng_ = std::normal_distribution<>(
         j["clients"]["amount"]["mean"].get<double>(),
@@ -78,10 +75,6 @@ struct Client : public Building {
         j["clients"]["request propability"]["mean"].get<double>(),
         j["clients"]["request propability"]["stddev"].get<double>())(core.rng);
   }
-
-  // void generateRequest() {
-  //   std::string type = 
-  // }
 };
 
 struct Factory : public Building {

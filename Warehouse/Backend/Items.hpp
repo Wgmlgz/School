@@ -36,12 +36,26 @@ void to_json(json& j, const PackageInfo& pi) {
 }
 
 std::map<std::string, PackageInfo> PackageInfo::items{
-    {"DEFAULT", {"DEFAULT", 1, 1, 1, 1}},             /* 1 egg */
-    {"Egg", {"Egg", 90, 6, 0.05, 20}},                /* 1 egg */
-    {"Milk", {"Milk", 2, 55, 1, 10}},                 /* 1 boutle */
-    {"Tissues", {"Tissues", 1000000000, 75, 0.1, 5}}, /* 1 package */
-    {"Fish", {"Fish", 2, 1800, 2, 10}},               /* 1 fish */
-    {"LSD", {"LSD", 1000000000, 255000, 0.001, 2}},   /* 1 gram */
+  {"Apple", {"Apple", 30, 1, 1, 1}},
+  {"Bread", {"Bread", 4, 1, 1, 1}},
+  {"Cake", {"Cake", 3, 1, 1, 1}},
+  {"DriedKelp", {"DriedKelp", 5, 1, 1, 1}},
+  {"Egg", {"Egg", 7, 1, 1, 1}},
+  {"EnchantedGoldenApple", {"EnchantedGoldenApple", 100, 1, 1, 1}},
+  {"GoldenApple", {"GoldenApple", 100, 1, 1, 1}},
+  {"Carrot", {"Carrot", 60, 1, 1, 1}},
+  {"MelonSlice", {"MelonSlice", 3, 1, 1, 1}},
+  {"MushroomStew", {"MushroomStew", 7, 1, 1, 1}},
+  {"Potato", {"Potato", 90, 1, 1, 1}},
+  {"ChorusFruit", {"ChorusFruit", 10, 1, 1, 1}},
+  {"RawBeef", {"RawBeef", 3, 1, 1, 1}},
+  {"RawChicken", {"RawChicken", 3, 1, 1, 1}},
+  {"RawPorkchop", {"RawPorkchop", 3, 1, 1, 1}},
+  {"RawSalmon", {"RawSalmon", 3, 1, 1, 1}},
+  {"RottenFlesh", {"RottenFlesh", 1, 1, 1, 1}},
+  {"SpiderEye", {"SpiderEye", 4, 1, 1, 1}},
+  {"SuspiciousStew", {"SuspiciousStew", 7, 1, 1, 1}},
+  {"SweetBerries", {"SweetBerries", 14, 1, 1, 1}},
 };
 
 struct Package {

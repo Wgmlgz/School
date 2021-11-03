@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React from "react";
 
 import frog1 from "./Frogs/frog1.jpg";
 import frog2 from "./Frogs/frog2.jpg";

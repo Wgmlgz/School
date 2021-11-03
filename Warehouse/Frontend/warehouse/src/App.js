@@ -1,41 +1,27 @@
 import "./App.scss";
-import "./Frogs/frog1.jpg";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
 
-import { ThemeProvider, createTheme } from "@material-ui/core/styles";
 
-import React, { useState, setEffect } from "react";
+import React from "react";
 import "./index.css";
 
 import Button from "@material-ui/core/Button";
-import Box from "@material-ui/core/Box";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
-import Card from "@material-ui/core/Card";
-
-import TextField from "@material-ui/core/TextField";
-
 import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import FormControl from "@material-ui/core/FormControl";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import Select from "@material-ui/core/Select";
-import Switch from "@material-ui/core/Switch";
+import { Container } from "@material-ui/core";
+import { ThemeProvider, createTheme } from "@material-ui/core/styles";
 
 import ReactJson from "react-json-view";
 
 import MainPage from "./MainPage.jsx";
-import { Container } from "@material-ui/core";
 
 import {ioSetStr, wwasmInvoke} from "./wwasm/wwasm.js";
+
+import FoodImages from './Food/Food.jsx'
 
 const theme = createTheme({
   palette: {
@@ -97,7 +83,7 @@ export default class App extends React.Component {
     is_main: false,
     src: {
       packages: {
-        n: 4,
+        n: 20,
       },
       clients: {
         n: 4,
@@ -121,7 +107,7 @@ export default class App extends React.Component {
         },
       },
       warehouse: {
-        "max capacity": 30,
+        "max capacity": 33,
         threshold: 25,
       },
     },
@@ -187,7 +173,7 @@ export default class App extends React.Component {
             >
               <Dialog open={!this.state.is_main}>
                 <Container>
-                  <DialogTitle>IMPOSTOR from game anong aus!!!!</DialogTitle>
+                  <DialogTitle>Warehouse simulation settings:</DialogTitle>
                   <Container>
                     <ReactJson
                       theme={dracula16}
@@ -213,13 +199,14 @@ export default class App extends React.Component {
                     onClick={this.onClose}
                     style={{ margin: "10px" }}
                   >
-                    gg
+                    Apply and run
                   </Button>
                 </Container>
               </Dialog>
             </div>
           </div>
         </div>
+        <FoodImages />
       </ThemeProvider>
     );
   }
