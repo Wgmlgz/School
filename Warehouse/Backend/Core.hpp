@@ -18,8 +18,8 @@
 using namespace std::literals;
 using namespace std::chrono;
 
-typedef int32_t Currency;   /* In roubles */
-typedef long double Weight; /* In kg */
+typedef int32_t Currency;
+typedef long double Weight;
 typedef system_clock::time_point TimePoint;
 typedef uint64_t idt;
 typedef int dayt;
@@ -36,17 +36,11 @@ struct Core {
 
   std::map<idt, std::string> id2str;
   
-  double rngd() {
-    return distr(generator);
-  }
-  // dur rngDayTime() {
-  //   return duration<double>(distr(generator) * day);
-  // }
+  Core() { updateClock(); }
+  double rngd() { return distr(generator); }
   void updateClock() {
-    clock = time_point_cast<TimePoint::duration>(system_clock::time_point(system_clock::now()));
-  }
-  Core() {
-    updateClock();
+    clock = time_point_cast<TimePoint::duration>(
+        system_clock::time_point(system_clock::now()));
   }
 };
 

@@ -1,3 +1,5 @@
+import "./App.scss";
+
 import CssBaseline from "@material-ui/core/CssBaseline";
 
 
@@ -184,6 +186,7 @@ export default class App extends React.Component {
                       name="data"
                       src={this.state.src}
                       onEdit={(e) => {
+                        console.log(e);
                         this.setState({ src: e.updated_src });
                       }}
                     />

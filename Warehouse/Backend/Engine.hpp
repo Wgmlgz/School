@@ -39,7 +39,9 @@ json default_settings = json::parse(R"({
   }
 })");
 
-struct Engine {
+/** @brief Controls main simulation */
+class Engine {
+ public:
   std::vector<std::string> packages_by_n;
 
   std::map<idt, std::shared_ptr<Package>> packages_list_;
@@ -61,9 +63,9 @@ struct Engine {
   json settings;
 
   Engine(const json& j) : settings(j), factory_(Factory(j)), warehouse_(Warehouse(j)) {
-    buildings_list_.insert({trash_.id_, &trash_});
-    buildings_list_.insert({factory_.id_, &factory_});
-    buildings_list_.insert({warehouse_.id_, &warehouse_});
+    buildings_list_.insert({trash_.id(), &trash_});
+    buildings_list_.insert({factory_.id(), &factory_});
+    buildings_list_.insert({warehouse_.id(), &warehouse_});
 
     auto it = PackageInfo::items.begin();
 
@@ -80,7 +82,7 @@ struct Engine {
       clients.push_back(Client(settings));
     }
     for (auto& i : clients) {
-      buildings_list_.insert({i.id_, &i});
+      buildings_list_.insert({i.id(), &i});
     }
   }
 
@@ -98,13 +100,13 @@ struct Engine {
   void updateClient(Client& self) {
     wlog("Client update");
 
-    /* request generation */
-    if (core.rngd() < self.request_probability_) {
+    /** Request generation */
+    if (core.rngd() < self.getRequestProbability()) {
       PackageInfo::items.size();
-      std::string package_type = packages_by_n[self.package_rng_(core.rng)];
-      int amount = self.amount_rng_(core.rng);
+      std::string package_type = packages_by_n[self.packageRng(core.rng)];
+      int amount = self.amountRng(core.rng);
 
-      pushRequest(Request(self.id_, warehouse_.id_,
+      pushRequest(Request(self.id(), warehouse_.id(),
                           PackageInfo::items[package_type], amount, core.day));
     }
   }
@@ -115,23 +117,23 @@ struct Engine {
 
     warehouse_json["in requests"] = requests;
 
-    /* Remove old packages */
+    /** Remove old packages */
     std::vector<std::shared_ptr<Package>> remove_contract_content;
     for (const auto& package_type : packages_by_n) {
-      while (self.shelfs[package_type].size() and
-             self.shelfs[package_type].front()->production_time_ +
+      while (self.shelf(package_type).size() and
+             self.shelf(package_type).front()->production_time_ +
                      PackageInfo::items[package_type].expiration_time_ <
                  core.day) {
-        auto t = self.shelfs[package_type].front();
-        self.shelfs[package_type].pop_front();
-        --self.virtual_size[package_type];
+        auto t = self.shelf(package_type).front();
+        self.shelf(package_type).pop_front();
+        --self.virtualSize(package_type);
         remove_contract_content.push_back(t);
       }
     }
 
     if (remove_contract_content.size()) {
       pushContract(
-          Contract(self.id_, trash_.id_, remove_contract_content, core.day));
+          Contract(self.id(), trash_.id(), remove_contract_content, core.day));
     }
 
     /* Process requsts */
@@ -141,19 +143,19 @@ struct Engine {
       requests.pop_front();
       
       auto package_type = request.package_.type_;
-      if (request.amount_ > self.shelfs[package_type].size()) {
+      if (request.amount_ > self.shelf(package_type).size()) {
         continue;
       }
 
       /* Resolve request */
       std::vector<std::shared_ptr<Package>> contract_content;
       for (auto j = 0; j < request.amount_; ++j) {
-        auto package = self.shelfs[package_type].front();
-        self.shelfs[package_type].pop_front();
+        auto package = self.shelf(package_type).front();
+        self.shelf(package_type).pop_front();
         contract_content.push_back(package);
-        --self.virtual_size[package_type];
+        --self.virtualSize(package_type);
       }
-      pushContract(Contract(self.id_, request.from_, contract_content, core.day));
+      pushContract(Contract(self.id(), request.from_, contract_content, core.day));
     }
 
 
@@ -165,62 +167,52 @@ struct Engine {
      *
      */
     for (const auto& package_type : packages_by_n) {
-      if (self.virtual_size[package_type] < self.threshold) {
+      if (self.virtualSize(package_type) < self.getThreshold()) {
 
         auto factory_request =
-            Request(self.id_, factory_.id_, PackageInfo::items[package_type],
-                    self.max_size - self.virtual_size[package_type], core.day);
+            Request(self.id(), factory_.id(), PackageInfo::items[package_type],
+                    self.getMaxSize() - self.virtualSize(package_type), core.day);
         new_requests.push_back(factory_request);
         pushRequest(factory_request);
-        self.virtual_size[package_type] = self.max_size;
+        self.virtualSize(package_type) = self.getMaxSize();
       }
     }
     warehouse_json["out requests"] = new_requests;
   }
 
-  //* DONE
   void updateFactory(Factory& self, std::list<Request>& requests) {
     wlog("Factory update");
     /* Process requests */
     for (auto i = requests.begin(); i != requests.end();) {
-      dayt done_day = core.day + std::round(self.wait_rng_(core.rng));
+      dayt done_day = core.day + self.genWaitTime(core.rng);
 
-      self.request_queue.insert({done_day, *i});
+      self.getRequestQueue().insert({done_day, *i});
 
       auto t = i;
       ++i;
       requests.erase(t);
     }
-    while (self.request_queue.size() and
-           self.request_queue.begin()->first <= core.day) {
-      auto request = self.request_queue.begin()->second;
-      self.request_queue.erase(self.request_queue.begin());
+    while (self.getRequestQueue().size() and
+           self.getRequestQueue().begin()->first <= core.day) {
+      auto request = self.getRequestQueue().begin()->second;
+      self.getRequestQueue().erase(self.getRequestQueue().begin());
 
       std::vector<std::shared_ptr<Package>> contract_content;
       for (int j = 0; j < request.amount_; ++j) {
         contract_content.push_back(createPackage(request.package_.type_));
       }
-      pushContract(Contract(self.id_, request.from_, contract_content, core.day));
+      pushContract(Contract(self.id(), request.from_, contract_content, core.day));
     }
   }
 
-  // void logPackages() {
-  //   wlog("Packages: ");
-  //   for (auto& [id, p] : packages_list_) {
-  //     wlog("Package from list: " + std::to_string(id) + " " +
-  //          p->package_info.type_ + " " +
-  //          (&buildings_list_.at(p->house_id_))->name());
-  //   }
-  // }
-
   void update() {
-    updateWarehouse(warehouse_, requests_[warehouse_.id_]);
+    updateWarehouse(warehouse_, requests_[warehouse_.id()]);
     for(auto& client : clients) updateClient(client);
-    updateFactory(factory_, requests_[factory_.id_]);
+    updateFactory(factory_, requests_[factory_.id()]);
   }
 
   std::shared_ptr<Package> createPackage(const std::string& type) {
-    auto package = std::shared_ptr<Package>(new Package(type, core.day, factory_.id_));
+    auto package = std::shared_ptr<Package>(new Package(type, core.day, factory_.id()));
     packages_list_.insert({package->id_, package});
     on_package_created(package);
     return package;
