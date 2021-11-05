@@ -89,12 +89,12 @@ export default class App extends React.Component {
     is_main: false,
     show_fin: false,
     src: {
-      "display stats day": 5,
+      "display stats day": -1,
       packages: {
-        n: 15,
+        n: 20,
       },
       clients: {
-        n: 4,
+        n: 10,
         amount: {
           mean: 8.0,
           stddev: 2.0,
@@ -106,6 +106,11 @@ export default class App extends React.Component {
         "request propability": {
           mean: 0.6,
           stddev: 0.2,
+        },
+        "outdated request probability": {
+          mean: 0.8,
+          stddev: 0.1,
+          days: 4,
         },
       },
       factory: {

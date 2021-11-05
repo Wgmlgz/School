@@ -100,6 +100,11 @@ class Client : public Building {
     request_probability_ = std::normal_distribution<>(
         j["clients"]["request propability"]["mean"].get<double>(),
         j["clients"]["request propability"]["stddev"].get<double>())(core.rng);
+
+    outdated_request_probability_ = std::normal_distribution<>(
+        j["clients"]["outdated request probability"]["mean"].get<double>(),
+        j["clients"]["outdated request probability"]["stddev"].get<double>())(
+        core.rng);
   }
 
   template <typename T>
@@ -114,12 +119,13 @@ class Client : public Building {
   int packageRng(auto& rng) { return package_rng_(rng); }
   int amountRng(auto& rng) { return amount_rng_(rng); }
   auto getRequestProbability() { return request_probability_; }
+  auto getOutdatedRequestProbability() { return outdated_request_probability_; }
 
  private:
   std::map<std::string, int> probabilities_;
   std::discrete_distribution<> package_rng_;
   std::normal_distribution<> amount_rng_;
-  double request_probability_;
+  double request_probability_, outdated_request_probability_;
 };
 
 /** Stores factory data */

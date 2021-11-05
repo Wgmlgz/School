@@ -5,7 +5,7 @@
 #include "Messages.hpp"
 #include "WJson.hpp"
 #include "Json.hpp"
-
+#include <algorithm>
 using json = nlohmann::json;
 
 json default_settings = json::parse(R"({
@@ -26,6 +26,11 @@ json default_settings = json::parse(R"({
     "request propability": {
       "mean": 0.5,
       "stddev": 0.2
+    },
+    "outdated request probability": {
+      "mean": 0.6,
+      "stddev": 0.1,
+      "days": 3
     }
   },
   "factory": {
@@ -45,6 +50,7 @@ json default_settings = json::parse(R"({
 class Engine {
  public:
   std::vector<std::string> packages_by_n;
+  std::vector<std::string> outdated_by_n;
 
   std::map<idt, std::shared_ptr<Package>> packages_list_;
   std::map<idt, Building*> buildings_list_;
@@ -103,9 +109,20 @@ class Engine {
   void updateClient(Client& self) {
     wlog("Client update");
 
+    /** Outdated try */
+    if (core.rngd() < self.getOutdatedRequestProbability() and outdated_by_n.size()) {
+      std::string package_type = outdated_by_n.back();
+      outdated_by_n.pop_back();
+      int amount = self.amountRng(core.rng);
+
+      pushRequest(Request(self.id(), warehouse_.id(),
+                          PackageInfo::items[package_type], amount, core.day));
+      wlog("order oudated");
+      return;
+    }
+
     /** Request generation */
     if (core.rngd() < self.getRequestProbability()) {
-      PackageInfo::items.size();
       std::string package_type = packages_by_n[self.packageRng(core.rng)];
       int amount = self.amountRng(core.rng);
 
@@ -219,6 +236,22 @@ class Engine {
       if (t < 0) t = 0;
       if (t > self.getMaxSize()) t = self.getMaxSize();
     }
+
+    /** Generated outdated list for next day */
+    outdated_by_n.clear();
+    for (const auto& package_type : packages_by_n) {
+      auto& shelf = self.shelf(package_type);
+      if (shelf.size()) {
+        if (shelf.front()->production_time_ +
+                PackageInfo::items[package_type].expiration_time_ <=
+            core.day +
+                settings["clients"]["outdated request probability"]["days"]
+                    .get<int>()) {
+          outdated_by_n.push_back(package_type);
+        }
+      }
+    }
+    std::shuffle(outdated_by_n.begin(), outdated_by_n.end(), core.rng);
 
     /** Results update */
     results_json["profit"] = std::round(self.getProfit());
