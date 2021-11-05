@@ -37,61 +37,66 @@ class UiEngine {
     engine.on_push_request = onPushRequest;
     engine.on_package_created = onPackageCreated;
     Package::on_package_destroyed = onPackageDestroyed;
+
+    wwasm::ioSetInt("auto_mode", 1);
   }  
 
-  void update() {
-    if (core.clock > next_update) {
-      ++core.day;
-      next_update = core.clock;
-      next_update += duration_cast<seconds>(core.day_length);
-      engine.update();
 
-      /* Packages movement */
-      auto package_move = [&](auto& pos, auto package, bool remove = false) {
-        auto new_pos = pos;
-        auto old_pos = static_cast<Pti>(locations[package->id_]);
+  void nextDay() {
+    ++core.day;
+    next_update = core.clock;
+    next_update += duration_cast<seconds>(core.day_length);
+    engine.update();
 
-        locations[package->id_] = new_pos;
-        pos += next_package_offset;
+    /* Packages movement */
+    auto package_move = [&](auto& pos, auto package, bool remove = false) {
+      auto new_pos = pos;
+      auto old_pos = static_cast<Pti>(locations[package->id_]);
 
-        auto s = "package_" + std::to_string(package->id_);
-        cnv.playAnim(
-          s,
-          wwasm::anim({
-              {0, pt2Frm(old_pos)},
-              {0.5, pt2Frm(new_pos)},
-            },
-            [=](wwasm::anim& a) {
-              if (remove) cnv.popEntity(s);
-            }
-          )
-        );
-      };
-      //return;
+      locations[package->id_] = new_pos;
+      pos += next_package_offset;
 
-      for (auto& [bid, building] : engine.buildings_list_) {
-        auto building_pos = static_cast<Pti>(locations[bid]);
-        if (auto warehouse = dynamic_cast<Warehouse*>(building)) {
-          building_pos = raw_locations[bid];
-          building_pos += shelf_offset;
-          for (auto& [ptype, shelf] : warehouse->getShelfs()) {
-            auto pos = building_pos;
-            pos += package_offset;
-
-            for (auto& package : shelf) {
-              package_move(pos, package);
-            }
-            building_pos += next_shelf_offset;
+      auto s = "package_" + std::to_string(package->id_);
+      cnv.playAnim(
+        s,
+        wwasm::anim({
+            {0, pt2Frm(old_pos)},
+            {1, pt2Frm(new_pos)},
+          },
+          [=](wwasm::anim& a) {
+            if (remove) cnv.popEntity(s);
           }
-        } else {
-          for (auto& [_, package] : building->storage) {
-            auto t = building_pos + building_offset;
-            package_move(t, package, true);
+        )
+      );
+    };
+
+    for (auto& [bid, building] : engine.buildings_list_) {
+      auto building_pos = static_cast<Pti>(locations[bid]);
+      if (auto warehouse = dynamic_cast<Warehouse*>(building)) {
+        building_pos = raw_locations[bid];
+        building_pos += shelf_offset;
+        for (auto& [ptype, shelf] : warehouse->getShelfs()) {
+          auto pos = building_pos;
+          pos += package_offset;
+
+          for (auto& package : shelf) {
+            package_move(pos, package);
           }
+          building_pos += next_shelf_offset;
+        }
+      } else {
+        for (auto& [_, package] : building->storage) {
+          auto t = building_pos + building_offset;
+          package_move(t, package, true);
         }
       }
-      wwasm::ioSetStr("warehouse_json", engine.warehouse_json.dump());
     }
+    wwasm::ioSetStr("warehouse_json", engine.warehouse_json.dump());
+  }
+
+  void update() {
+    if (core.clock > next_update and wwasm::ioGetInt("auto_mode"))
+      nextDay();
     core.updateClock();
   }
 

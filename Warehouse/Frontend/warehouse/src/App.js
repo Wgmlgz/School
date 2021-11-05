@@ -2,7 +2,6 @@ import "./App.scss";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
 
-
 import React from "react";
 import "./index.css";
 
@@ -18,10 +17,11 @@ import { ThemeProvider, createTheme } from "@material-ui/core/styles";
 import ReactJson from "react-json-view";
 
 import MainPage from "./MainPage.jsx";
+import BarButton from "./BarButton.jsx";
 
-import {ioSetStr, wwasmInvoke} from "./wwasm/wwasm.js";
+import { ioSetStr, wwasmInvoke, ioSetInt } from "./wwasm/wwasm.js";
 
-import FoodImages from './Food/Food.jsx'
+import FoodImages from "./Food/Food.jsx";
 
 const theme = createTheme({
   palette: {
@@ -80,6 +80,7 @@ const style = {
 
 export default class App extends React.Component {
   state = {
+    auto_mode: true,
     is_main: false,
     src: {
       packages: {
@@ -117,7 +118,7 @@ export default class App extends React.Component {
     this.setState({ is_main: false });
   };
 
-  onClose = () => {
+  OnClose = () => {
     console.log("da");
 
     ioSetStr("settings", JSON.stringify(this.state.src));
@@ -127,83 +128,73 @@ export default class App extends React.Component {
     wwasmInvoke("restart");
   };
 
+  ToggleAutoMode = () => {
+    let t = this.state.auto_mode;
+    t = !t;
+    this.setState({ auto_mode: t});
+    ioSetInt("auto_mode", t);
+  };
+
+  NextDay = () => {
+    wwasmInvoke("next_day");
+  };
+
   render() {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div>
-          <div>
-            <AppBar position="static">
-              <Toolbar variant="dense">
-                <Typography
-                  variant="h5"
-                  component="div"
-                  style={{ margin: "10px" }}
-                >
-                  Warehouse simulator by Wgmlgz
-                </Typography>
-                <Button
-                  variant="contained"
-                  size="large"
-                  color="secondary"
-                  onClick={this.Restart}
-                  style={{ margin: "10px" }}
-                >
-                  Restart
-                </Button>
-                <Button
-                  variant="contained"
-                  size="large"
-                  color="secondary"
-                  onClick={this.updateStats}
-                  style={{ margin: "10px" }}
-                >
-                  Report
-                </Button>
-              </Toolbar>
-            </AppBar>
+          <AppBar position="static">
+            <Toolbar variant="dense">
+              <Typography
+                variant="h5"
+                component="div"
+                style={{ margin: "10px" }}
+              >
+                Warehouse simulator by Wgmlgz
+              </Typography>
+              <BarButton content="Restart" event={this.Restart} />
+              <BarButton content="Report" event={this.Restart} />
+              <BarButton
+                content="Toggle auto mode"
+                event={this.ToggleAutoMode}
+              />
+              <BarButton content="Next day" event={this.NextDay} />
+            </Toolbar>
+          </AppBar>
 
-            <div
-              style={{ visibility: this.state.is_main ? "visible" : "hidden" }}
-            >
-              <MainPage />
-            </div>
-            <div
-              style={{ visibility: this.state.is_main ? "hidden" : "visible" }}
-            >
-              <Dialog open={!this.state.is_main}>
+          <div
+            style={{ visibility: this.state.is_main ? "visible" : "hidden" }}
+          >
+            <MainPage />
+          </div>
+          <div
+            style={{ visibility: this.state.is_main ? "hidden" : "visible" }}
+          >
+            <Dialog open={!this.state.is_main}>
+              <Container>
+                <DialogTitle>Warehouse simulation settings:</DialogTitle>
                 <Container>
-                  <DialogTitle>Warehouse simulation settings:</DialogTitle>
-                  <Container>
-                    <ReactJson
-                      theme={dracula16}
-                      style={style}
-                      quotesOnKeys={false}
-                      displayDataTypes={false}
-                      displayObjectSize={false}
-                      enableClipboard={false}
-                      iconStyle="triangle"
-                      name="data"
-                      src={this.state.src}
-                      onEdit={(e) => {
-                        console.log(e);
-                        this.setState({ src: e.updated_src });
-                      }}
-                    />
-                  </Container>
-
-                  <Button
-                    variant="contained"
-                    size="large"
-                    color="secondary"
-                    onClick={this.onClose}
-                    style={{ margin: "10px" }}
-                  >
-                    Apply and run
-                  </Button>
+                  <ReactJson
+                    theme={dracula16}
+                    style={style}
+                    quotesOnKeys={false}
+                    displayDataTypes={false}
+                    displayObjectSize={false}
+                    enableClipboard={false}
+                    iconStyle="triangle"
+                    name="data"
+                    src={this.state.src}
+                    onEdit={(e) => {
+                      console.log(e);
+                      this.setState({ src: e.updated_src });
+                    }}
+                  />
                 </Container>
-              </Dialog>
-            </div>
+
+                <BarButton content="Apply and run" event={this.OnClose} />
+              </Container>
+            </Dialog>
           </div>
         </div>
         <FoodImages />
