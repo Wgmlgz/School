@@ -39,13 +39,13 @@ void to_json(json& j, const Request& re) {
   };
 }
 
-struct Contract {
+struct Order {
   idt from_, to_;
   std::vector<std::shared_ptr<Package>> content_;
   dayt time_;
   idt id_;
 
-  Contract(idt from, idt to, std::vector<std::shared_ptr<Package>>& content,
+  Order(idt from, idt to, std::vector<std::shared_ptr<Package>>& content,
            dayt time_)
       : from_(from),
         to_(to),
@@ -65,7 +65,7 @@ struct Contract {
   }
 };
 
-void to_json(json& j, const Contract& co) {
+void to_json(json& j, const Order& co) {
   j = json{
       {"from", core.id2str[co.from_]},
       {"to", core.id2str[co.to_]},

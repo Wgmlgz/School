@@ -10,10 +10,15 @@ class Building {
   Building() { id_ = core.rng(); }
   idt id() { return id_; }
 
-  std::list<std::shared_ptr<Package>> storage;
+  std::list<std::pair<dayt, std::shared_ptr<Package>>> storage;
+
   virtual void pushPackage(std::shared_ptr<Package> package) {
-    storage.push_back(package);
-    if (storage.size() >= 64) storage.pop_front();
+    storage.push_back({core.day, package});
+
+    while (storage.size() and storage.front().first != core.day) {
+      Package::on_package_destroyed(storage.front().second->id_);
+      storage.pop_front();
+    }
   }
 
   virtual std::string name() { return "Building"; }
@@ -29,7 +34,7 @@ class Warehouse : public Building {
       shelfs[str] = {};
 
     max_size = j["warehouse"]["max capacity"].get<int>();
-    threshold = j["warehouse"]["threshold"].get<int>();
+    threshold = j["warehouse"]["threshold"].get<double>();
   }
 
   virtual void pushPackage(std::shared_ptr<Package> package) override {
@@ -39,17 +44,26 @@ class Warehouse : public Building {
 
   auto& shelf(const std::string& s) { return shelfs[s]; }
   auto& getShelfs() { return shelfs; }
-  int& virtualSize(const std::string& s) { return virtual_size[s]; }
-  int getThreshold() { return threshold; }
+  int& virtualSize(const std::string& s) { return virtual_size_[s]; }
+  int getThreshold(const std::string& s) {
+    return threshold * max_virtual_size_[s];
+  }
   int getMaxSize() { return max_size; }
+  int& getMaxVirtualSize(const std::string& s) { return max_virtual_size_[s]; }
+  int& getScore(const std::string& s) { return score_[s]; }
+  auto& score() { return score_; }
+  auto& maxVirtualSize() { return max_virtual_size_; }
 
   virtual std::string name() override { return "Warehouse"; }
 
  private:
   std::map<std::string, std::list<std::shared_ptr<Package>>> shelfs;
-  std::map<std::string, int> virtual_size;
+  std::map<std::string, int> virtual_size_;
+  std::map<std::string, int> max_virtual_size_;
+  std::map<std::string, int> score_;
 
-  int threshold, max_size;
+  double threshold;
+  int max_size;
 };
 
 /** @brief Stores client data */

@@ -71,7 +71,8 @@ export function drawCanvas(canvas_id, w, h) {
 }
 
 export function drawCanvasJSON(canvas_id, w, h) {
-  let data = JSON.parse(getCanvasJSON(canvas_id, w, h));
+  let s = getCanvasJSON(canvas_id, w, h);
+  let data = JSON.parse(s);
   if (data === null) return;
   let canvas = document.getElementById(canvas_id);
   const ctx = canvas.getContext("2d");

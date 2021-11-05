@@ -199,6 +199,8 @@ struct Canvas {
     while(remove_queue.size()) {
       auto id = remove_queue.front();
       remove_queue.pop();
+      if (!entities_str_.contains(id)) continue;
+      
       entities_.erase(entities_str_[id]);
       entities_str_.erase(id);
       animations_.erase(id);

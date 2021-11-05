@@ -52,7 +52,7 @@ class Engine {
   Warehouse warehouse_;
   std::vector<Client> clients;
 
-  std::map<idt, std::list<Contract>> contracts_;
+  // std::map<idt, std::list<Contract>> contracts_;
   std::map<idt, std::list<Request>> requests_;
 
   std::function<void(const Request&)> on_push_request = [](auto a){};
@@ -86,9 +86,9 @@ class Engine {
     }
   }
 
-  void pushContract(const Contract& contract) {
-    for (auto& i : contract.content_) {
-      buildings_list_.at(contract.to_)->pushPackage(i);
+  void pushOrder(const Order& order) {
+    for (auto& i : order.content_) {
+      buildings_list_.at(order.to_)->pushPackage(i);
     }
   }
 
@@ -127,35 +127,54 @@ class Engine {
         auto t = self.shelf(package_type).front();
         self.shelf(package_type).pop_front();
         --self.virtualSize(package_type);
+        /* Need to order less */
+        --self.getScore(package_type);
         remove_contract_content.push_back(t);
       }
     }
 
     if (remove_contract_content.size()) {
-      pushContract(
-          Contract(self.id(), trash_.id(), remove_contract_content, core.day));
+      pushOrder(Order(self.id(), trash_.id(), remove_contract_content, core.day));
     }
 
-    /* Process requsts */
+    /** Process requsts */
     std::vector<Request> new_requests;
+
+    /** amount, clients */
+    std::map<std::string, std::pair<int, int>> want;
+
+    for (const auto& request : requests) {
+      auto package_type = request.package_.type_;
+      want[package_type].first += request.amount_;
+      want[package_type].second += 1;
+    }
+
     while (requests.size()) {
       auto request = requests.front();
       requests.pop_front();
       
+      /** Spread evenly */
       auto package_type = request.package_.type_;
-      if (request.amount_ > self.shelf(package_type).size()) {
-        continue;
-      }
+      auto old = request.amount_;
+      auto t = std::ceil((want[package_type].first) / want[package_type].second);
+      if (request.amount_ > t) request.amount_ = t;
+      t = self.shelf(package_type).size();
+      if (request.amount_ > t) request.amount_ = t;
 
-      /* Resolve request */
-      std::vector<std::shared_ptr<Package>> contract_content;
+      /* Need to order more */
+      self.getScore(package_type) += old - request.amount_;
+
+      if (request.amount_ <= 0) continue;
+
+      /** Resolve request */
+      std::vector<std::shared_ptr<Package>> order_content;
       for (auto j = 0; j < request.amount_; ++j) {
         auto package = self.shelf(package_type).front();
         self.shelf(package_type).pop_front();
-        contract_content.push_back(package);
+        order_content.push_back(package);
         --self.virtualSize(package_type);
       }
-      pushContract(Contract(self.id(), request.from_, contract_content, core.day));
+      pushOrder(Order(self.id(), request.from_, order_content, core.day));
     }
 
 
@@ -164,19 +183,30 @@ class Engine {
      * threshold^
      *       #########
      * buy this^
-     *
      */
     for (const auto& package_type : packages_by_n) {
-      if (self.virtualSize(package_type) < self.getThreshold()) {
-
+      if (self.virtualSize(package_type) < self.getThreshold(package_type)) {
         auto factory_request =
-            Request(self.id(), factory_.id(), PackageInfo::items[package_type],
-                    self.getMaxSize() - self.virtualSize(package_type), core.day);
+          Request(self.id(), factory_.id(), PackageInfo::items[package_type],
+            self.getMaxVirtualSize(package_type) - self.virtualSize(package_type),
+            core.day);
         new_requests.push_back(factory_request);
         pushRequest(factory_request);
-        self.virtualSize(package_type) = self.getMaxSize();
+        self.virtualSize(package_type) = self.getMaxVirtualSize(package_type);
       }
     }
+
+    /** Change threshold and max virtual size based on score */
+    for (const auto& package_type : packages_by_n) {
+      auto& t = self.getMaxVirtualSize(package_type);
+      auto& score = self.getScore(package_type);
+      if (score < 0) --t, ++score;
+      else ++t, --score;
+      if (t < 0) t = 0;
+      if (t > self.getMaxSize()) t = self.getMaxSize();
+    }
+    warehouse_json["score"] = self.score();
+    warehouse_json["max virtual size"] = self.maxVirtualSize();
     warehouse_json["out requests"] = new_requests;
   }
 
@@ -201,7 +231,7 @@ class Engine {
       for (int j = 0; j < request.amount_; ++j) {
         contract_content.push_back(createPackage(request.package_.type_));
       }
-      pushContract(Contract(self.id(), request.from_, contract_content, core.day));
+      pushOrder(Order(self.id(), request.from_, contract_content, core.day));
     }
   }
 

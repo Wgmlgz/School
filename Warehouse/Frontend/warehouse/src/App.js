@@ -86,9 +86,9 @@ export default class App extends React.Component {
         n: 20,
       },
       clients: {
-        n: 4,
+        n: 6,
         amount: {
-          mean: 4.0,
+          mean: 8.0,
           stddev: 2.0,
         },
         type: {
@@ -96,19 +96,19 @@ export default class App extends React.Component {
           diff: 10,
         },
         "request propability": {
-          mean: 0.5,
+          mean: 0.8,
           stddev: 0.2,
         },
       },
       factory: {
         "wait time": {
-          mean: 10.0,
-          stddev: 3.0,
+          mean: 3.0,
+          stddev: 1.0,
         },
       },
       warehouse: {
         "max capacity": 33,
-        threshold: 25,
+        threshold: 0.75,
       },
     },
   };

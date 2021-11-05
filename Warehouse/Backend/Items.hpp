@@ -40,7 +40,7 @@ std::map<std::string, PackageInfo> PackageInfo::items{
   {"Bread", {"Bread", 4, 1, 1, 1}},
   {"Cake", {"Cake", 3, 1, 1, 1}},
   {"DriedKelp", {"DriedKelp", 5, 1, 1, 1}},
-  {"Egg", {"Egg", 7, 1, 1, 1}},
+  {"Egg", {"Egg", 14, 1, 1, 1}},
   {"EnchantedGoldenApple", {"EnchantedGoldenApple", 100, 1, 1, 1}},
   {"GoldenApple", {"GoldenApple", 100, 1, 1, 1}},
   {"Carrot", {"Carrot", 60, 1, 1, 1}},
@@ -68,6 +68,8 @@ struct Package {
   uint64_t id_;
   uint64_t house_id_;
 
+  static std::function<void(const idt&)> on_package_destroyed;
+
   Package(std::string type, dayt production_time, idt house_id)
   : package_info(PackageInfo::items[type]), production_time_(production_time) {
     cost_ = package_info.cost_ * package_info.count_in_package_;
@@ -89,9 +91,12 @@ struct Package {
     res += "}";
     return res;
   }
-};
 
-void to_json(json& j, const Package& pi) {
+  ~Package() { on_package_destroyed(id_); }
+};
+std::function<void(const idt&)> Package::on_package_destroyed = [](const auto& _){};
+
+void to_json(json & j, const Package& pi) {
   j = json{
     {"production time", pi.production_time_},
     {"package info", pi.package_info.type_},

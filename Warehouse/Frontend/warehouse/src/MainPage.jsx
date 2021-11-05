@@ -9,6 +9,7 @@ import PackageImg from "./Images/Package.png";
 import ShelfImg from "./Images/Shelf.png";
 
 import Button from "@material-ui/core/Button";
+import List from "@material-ui/core/List";
 import Typography from "@material-ui/core/Typography";
 
 
@@ -67,7 +68,7 @@ export default class MainPage extends React.Component {
             <Paper>
               <Container style={{ display: "flex", padding: "10px" }}>
                 <Typography variant="h4" style={{ margin: "10px" }}>
-                  Warehouse orders and requests
+                  Warehouse stats
                 </Typography>
                 <Button
                   variant="contained"
@@ -79,7 +80,9 @@ export default class MainPage extends React.Component {
                   Update
                 </Button>
               </Container>
-              <Container>
+              <Container
+                style={{ maxHeight: "calc(100vh - 275px)", overflow: "auto" }}
+              >
                 <ReactJson
                   theme={dracula16}
                   style={style}

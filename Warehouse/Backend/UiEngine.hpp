@@ -36,6 +36,7 @@ class UiEngine {
 
     engine.on_push_request = onPushRequest;
     engine.on_package_created = onPackageCreated;
+    Package::on_package_destroyed = onPackageDestroyed;
   }  
 
   void update() {
@@ -61,9 +62,7 @@ class UiEngine {
               {0.5, pt2Frm(new_pos)},
             },
             [=](wwasm::anim& a) {
-              if (remove) {
-                cnv.popEntity(s);
-              }
+              if (remove) cnv.popEntity(s);
             }
           )
         );
@@ -85,7 +84,7 @@ class UiEngine {
             building_pos += next_shelf_offset;
           }
         } else {
-          for (auto& package : building->storage) {
+          for (auto& [_, package] : building->storage) {
             auto t = building_pos + building_offset;
             package_move(t, package, true);
           }
@@ -176,6 +175,10 @@ class UiEngine {
       )
     );
     locations[package->id_] = pos;
+  };
+
+  std::function<void(const idt&)> onPackageDestroyed = [&](const idt& pid) {
+    cnv.popEntity("package_" + std::to_string(pid));
   };
 };
 
