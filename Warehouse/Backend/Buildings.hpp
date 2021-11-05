@@ -148,7 +148,8 @@ class Factory : public Building {
 };
 
 /** @brief Stores nothing */
-struct Trash : public Building {
+class Trash : public Building {
+ public:
   Trash() { core.id2str[id()] = name(); }
 };
 

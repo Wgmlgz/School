@@ -3,9 +3,9 @@
 #include "Items.hpp"
 #include "Buildings.hpp"
 #include "Messages.hpp"
-#include "WJson.hpp"
 #include "Json.hpp"
 #include <algorithm>
+
 using json = nlohmann::json;
 
 json default_settings = json::parse(R"({
@@ -306,4 +306,3 @@ class Engine {
 };
 
 Engine engine(default_settings);
-
