@@ -35,6 +35,7 @@ class Warehouse : public Building {
 
     max_size = j["warehouse"]["max capacity"].get<int>();
     threshold = j["warehouse"]["threshold"].get<double>();
+    extra_charge_ = j["warehouse"]["extra charge"].get<double>();
   }
 
   virtual void pushPackage(std::shared_ptr<Package> package) override {
@@ -44,15 +45,24 @@ class Warehouse : public Building {
 
   auto& shelf(const std::string& s) { return shelfs[s]; }
   auto& getShelfs() { return shelfs; }
-  int& virtualSize(const std::string& s) { return virtual_size_[s]; }
-  int getThreshold(const std::string& s) {
+  auto& virtualSize(const std::string& s) { return virtual_size_[s]; }
+  auto getThreshold(const std::string& s) {
     return threshold * max_virtual_size_[s];
   }
-  int getMaxSize() { return max_size; }
-  int& getMaxVirtualSize(const std::string& s) { return max_virtual_size_[s]; }
-  int& getScore(const std::string& s) { return score_[s]; }
+  auto getMaxSize() { return max_size; }
+  auto& getMaxVirtualSize(const std::string& s) { return max_virtual_size_[s]; }
+  auto& getScore(const std::string& s) { return score_[s]; }
+  auto& delivered(const std::string& s) { return delivered_[s]; }
+  auto& delivered() { return delivered_; }
   auto& score() { return score_; }
   auto& maxVirtualSize() { return max_virtual_size_; }
+  auto earn(int n) { income_ += n; }
+  auto spend(int n) { outcome_ += n; }
+  auto waste(int n) { wasted_ += n; }
+  auto getIncome() { return income_ * extra_charge_; }
+  auto getOutcome() { return outcome_; }
+  auto getWasted() { return wasted_; }
+  auto getProfit() { return income_ * extra_charge_ - outcome_; }
 
   virtual std::string name() override { return "Warehouse"; }
 
@@ -61,6 +71,11 @@ class Warehouse : public Building {
   std::map<std::string, int> virtual_size_;
   std::map<std::string, int> max_virtual_size_;
   std::map<std::string, int> score_;
+  std::map<std::string, int> delivered_;
+
+  double income_ = 0, outcome_ = 0, wasted_ = 0, extra_charge_ = 1.0;
+
+  int orders_;
 
   double threshold;
   int max_size;

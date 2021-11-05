@@ -42,6 +42,10 @@ struct Core {
     clock = time_point_cast<TimePoint::duration>(
         system_clock::time_point(system_clock::now()));
   }
+  void reset() {
+    id2str.clear();
+    day = 0;
+  }
 };
 
 Core core;

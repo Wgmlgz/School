@@ -9,6 +9,7 @@
 using json = nlohmann::json;
 
 json default_settings = json::parse(R"({
+  "display stats day": 20,
   "packages": {
     "n": 4
   },
@@ -34,6 +35,7 @@ json default_settings = json::parse(R"({
     }
   },
   "warehouse": {
+    "extra charge": 1.3,
     "max capacity": 30,
     "threshold": 25
   }
@@ -60,6 +62,7 @@ class Engine {
   std::function<void(const std::shared_ptr<Package>&, idt)> on_package_moved = [](auto a, auto b){};
 
   json warehouse_json;
+  json results_json;
   json settings;
 
   Engine(const json& j) : settings(j), factory_(Factory(j)), warehouse_(Warehouse(j)) {
@@ -114,6 +117,7 @@ class Engine {
   void updateWarehouse(Warehouse& self, std::list<Request>& requests) {
     wlog("Warehouse update");
     warehouse_json.clear();
+    results_json.clear();
 
     warehouse_json["in requests"] = requests;
 
@@ -125,19 +129,19 @@ class Engine {
                      PackageInfo::items[package_type].expiration_time_ <
                  core.day) {
         auto t = self.shelf(package_type).front();
+        remove_contract_content.push_back(t);
+        self.waste(t->package_info.cost_);
         self.shelf(package_type).pop_front();
         --self.virtualSize(package_type);
+
         /** Need to order less */
         --self.getScore(package_type);
-        remove_contract_content.push_back(t);
       }
     }
 
     if (remove_contract_content.size()) {
       pushOrder(Order(self.id(), trash_.id(), remove_contract_content, core.day));
     }
-
-
 
     /** amount, clients */
     std::map<std::string, std::pair<int, int>> want;
@@ -166,6 +170,7 @@ class Engine {
       /* Need to order more */
       self.getScore(package_type) += old - request.amount_;
 
+      /** Pointless to make factory request */
       if (request.amount_ <= 0) continue;
 
       /** Resolve request */
@@ -174,10 +179,15 @@ class Engine {
         auto package = self.shelf(package_type).front();
         self.shelf(package_type).pop_front();
         order_content.push_back(package);
+
+        self.earn(package->package_info.cost_);
         --self.virtualSize(package_type);
       }
+
+      /** Push order */
       auto order = Order(self.id(), request.from_, order_content, core.day);
       orders_json.push_back(order);
+      ++self.delivered(package_type);
       pushOrder(order);
     }
     warehouse_json["orders"] = orders_json;
@@ -190,10 +200,10 @@ class Engine {
      */
     for (const auto& package_type : packages_by_n) {
       if (self.virtualSize(package_type) < self.getThreshold(package_type)) {
-        auto factory_request =
-          Request(self.id(), factory_.id(), PackageInfo::items[package_type],
-            self.getMaxVirtualSize(package_type) - self.virtualSize(package_type),
-            core.day);
+        auto n = self.getMaxVirtualSize(package_type) - self.virtualSize(package_type);
+        auto& package = PackageInfo::items[package_type];
+        auto factory_request = Request(self.id(), factory_.id(), package, n, core.day);
+        self.spend(package.cost_ * n);
         new_requests.push_back(factory_request);
         pushRequest(factory_request);
         self.virtualSize(package_type) = self.getMaxVirtualSize(package_type);
@@ -209,6 +219,15 @@ class Engine {
       if (t < 0) t = 0;
       if (t > self.getMaxSize()) t = self.getMaxSize();
     }
+
+    /** Results update */
+    results_json["profit"] = std::round(self.getProfit());
+    results_json["income"] = std::round(self.getIncome());
+    results_json["outcome"] = std::round(self.getOutcome());
+    results_json["wasted"] = std::round(self.getWasted());
+    results_json["delivered"] = self.delivered();
+
+    /** Stats update */
     warehouse_json["score"] = self.score();
     warehouse_json["max virtual size"] = self.maxVirtualSize();
     warehouse_json["out requests"] = new_requests;

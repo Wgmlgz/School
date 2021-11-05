@@ -7,7 +7,7 @@
 
 using namespace wwasm::literals;
 
-/** @brief Controller for wwasm::Canvas */
+/** Controller for wwasm::Canvas */
 class UiEngine {
  private:
   static auto pt2Frm(auto pt) {
@@ -44,11 +44,14 @@ class UiEngine {
 
   void nextDay() {
     ++core.day;
+
+    wwasm::ioSetInt("cur_day", core.day);
+
     next_update = core.clock;
     next_update += duration_cast<seconds>(core.day_length);
     engine.update();
 
-    /* Packages movement */
+    /** Packages movement helper */
     auto package_move = [&](auto& pos, auto package, bool remove = false) {
       auto new_pos = pos;
       auto old_pos = static_cast<Pti>(locations[package->id_]);
@@ -70,6 +73,7 @@ class UiEngine {
       );
     };
 
+    /** Packages movement */
     for (auto& [bid, building] : engine.buildings_list_) {
       auto building_pos = static_cast<Pti>(locations[bid]);
       if (auto warehouse = dynamic_cast<Warehouse*>(building)) {
@@ -91,7 +95,9 @@ class UiEngine {
         }
       }
     }
+
     wwasm::ioSetStr("warehouse_json", engine.warehouse_json.dump());
+    wwasm::ioSetStr("results_json", engine.results_json.dump());
   }
 
   void update() {
