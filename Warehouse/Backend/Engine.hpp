@@ -4,7 +4,7 @@
 #include "Buildings.hpp"
 #include "Messages.hpp"
 #include "WJson.hpp"
-#include "json.hpp"
+#include "Json.hpp"
 
 using json = nlohmann::json;
 
@@ -127,7 +127,7 @@ class Engine {
         auto t = self.shelf(package_type).front();
         self.shelf(package_type).pop_front();
         --self.virtualSize(package_type);
-        /* Need to order less */
+        /** Need to order less */
         --self.getScore(package_type);
         remove_contract_content.push_back(t);
       }
@@ -137,8 +137,7 @@ class Engine {
       pushOrder(Order(self.id(), trash_.id(), remove_contract_content, core.day));
     }
 
-    /** Process requsts */
-    std::vector<Request> new_requests;
+
 
     /** amount, clients */
     std::map<std::string, std::pair<int, int>> want;
@@ -149,6 +148,9 @@ class Engine {
       want[package_type].second += 1;
     }
 
+    /** Process requsts */
+    std::vector<Request> new_requests;
+    std::vector<json> orders_json;
     while (requests.size()) {
       auto request = requests.front();
       requests.pop_front();
@@ -174,9 +176,11 @@ class Engine {
         order_content.push_back(package);
         --self.virtualSize(package_type);
       }
-      pushOrder(Order(self.id(), request.from_, order_content, core.day));
+      auto order = Order(self.id(), request.from_, order_content, core.day);
+      orders_json.push_back(order);
+      pushOrder(order);
     }
-
+    warehouse_json["orders"] = orders_json;
 
     /**
      * ######.........

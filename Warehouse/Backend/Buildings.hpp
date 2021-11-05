@@ -3,7 +3,7 @@
 #include "Items.hpp"
 #include "Messages.hpp"
 
-/** @brief Base class for Warehouse, Client, Factory and Trash */
+/** Base class for Warehouse, Client, Factory and Trash */
 class Building {
   idt id_;
  public:
@@ -24,7 +24,7 @@ class Building {
   virtual std::string name() { return "Building"; }
 };
 
-/** @brief Stores warehouse data */
+/** Stores warehouse data */
 class Warehouse : public Building {
  public:
   Warehouse(const json& j) {
@@ -66,7 +66,7 @@ class Warehouse : public Building {
   int max_size;
 };
 
-/** @brief Stores client data */
+/** Stores client data */
 class Client : public Building {
  public:
   Client(const json& j) {
@@ -107,7 +107,7 @@ class Client : public Building {
   double request_probability_;
 };
 
-/** @brief Stores factory data */
+/** Stores factory data */
 class Factory : public Building {
  public:
   Factory(const json& j) {
