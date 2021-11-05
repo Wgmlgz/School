@@ -45,9 +45,8 @@ export default function WCanvas(props) {
     }
   }
 
-  setInterval(() => {
-    if (!is_init) 
-      return;
+  function canvasUpdate() {
+    if (!is_init) return;
 
     let canvas_div = document.getElementById(canvas_id + "_div");
     let canvas = document.getElementById(canvas_id);
@@ -62,7 +61,14 @@ export default function WCanvas(props) {
     } else {
       drawCanvasJSON(canvas_id, w, h);
     }
-  }, 16);
+  }
+
+  setInterval (canvasUpdate, 16);
+
+  requestAnimationFrame(() => {
+    canvasUpdate();
+    requestAnimationFrame(canvasUpdate)
+  });
 
 
   return (<div id={canvas_id + "_div"}>
