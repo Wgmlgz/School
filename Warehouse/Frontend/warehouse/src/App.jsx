@@ -190,7 +190,15 @@ export default class App extends React.Component {
               Warehouse simulator by Wgmlgz
             </Typography>
             <BarButton content="Restart" event={this.Restart} />
-            <BarButton content="Report" event={this.Restart} />
+            <BarButton
+              content="Report"
+              event={() =>
+                window.open(
+                  "https://wgmlgz.github.io/Warehouse/Docs/Report",
+                  "_blank"
+                )
+              }
+            />
             <BarButton content="Toggle auto mode" event={this.ToggleAutoMode} />
             <BarButton content="Next day" event={this.NextDay} />
             <BarButton content="Display results" event={this.DisplayResults} />
