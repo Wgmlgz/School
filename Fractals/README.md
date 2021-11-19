@@ -6,8 +6,8 @@ Explore different beauteafull fractals such as Mandelbrot set, Burning Ship, or 
 
 ### Fractal tree
 
-<br/><img src="./images/FractalTree.png" alt="drawing" />
+<img src="./images/FractalTree.png" alt="drawing" />
 
 ### Mandelbrot set
 
-<br/><img src="./images/Mandelbrot.png" alt="drawing"/>
+<img src="./images/Mandelbrot.png" alt="drawing"/>
